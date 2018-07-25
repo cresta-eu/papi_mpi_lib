@@ -77,7 +77,7 @@ do step=1,nsteps
     call papi_mpi_reset(1)
     call subroutine3()
     papi_res = papi_mpi_record(step,3,1,0)
-enddo
+end do
 
 call papi_mpi_finalise()
 ...
