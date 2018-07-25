@@ -2,11 +2,7 @@ The PAPI MPI library makes it possible to monitor a user-defined set of
 hardware performance counters during the execution of an MPI code running
 across multiple compute nodes.
 
-This repository holds source code for the `papi_mpi_lib` library (a wrapper to
-the [low-level API](http://icl.cs.utk.edu/papi/docs/dd/dbc/group__low__api.html) defined by the [PAPI library](http://icl.utk.edu/papi/)). There are also two small test
-
-harnesses that demonstrate how to call the library functions from Fortran and
-C codes.
+This repository holds source code for the `papi_mpi_lib` library (a wrapper to the [low-level API](http://icl.cs.utk.edu/papi/docs/dd/dbc/group__low__api.html) defined by the [PAPI library](http://icl.utk.edu/papi/)). There are also two small test harnesses that demonstrate how to call the library functions from Fortran and C codes.
 
 The makefile is intended for use on the ARCHER Cray XC30 MPP Supercomputer:
 the makefile script references the `PE_ENV` environment variable.
