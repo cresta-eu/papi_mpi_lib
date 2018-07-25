@@ -67,19 +67,21 @@ call papi_mpi_initialise(papi_out_fn)
 
 do step=1,nsteps
     call papi_mpi_reset(1)
-    call subroutine1(kstep,msteps)
-    papi_res = papi_mpi_record(kstep,1,1,0)
+    call subroutine1()
+    papi_res = papi_mpi_record(step,1,1,0)
     
     call papi_mpi_reset(1)
-    call subroutine2(kstep,msteps)
-    papi_res = papi_mpi_record(kstep,2,1,0)
+    call subroutine2()
+    papi_res = papi_mpi_record(step,2,1,0)
     
     call papi_mpi_reset(1)
-    call subroutine3(kstep,msteps)
-    papi_res = papi_mpi_record(kstep,3,1,0)
+    call subroutine3()
+    papi_res = papi_mpi_record(step,3,1,0)
 enddo
 
 call papi_mpi_finalise()
 ...
 
 ```
+
+The content of `app01papi.out` would then show how much the counter values changed as a consequence of calling subroutines 1 to 3.
