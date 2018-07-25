@@ -8,10 +8,10 @@ The makefile is intended for use on the ARCHER Cray XC30 MPP Supercomputer:
 the makefile script references the `PE_ENV` environment variable.
 
 Before compiling please load the papi module (`module load papi`),
-and then compile by running `make`. You can then have compile and link
+and then compile by running `make`. You can then compile and link
 your application code with `libpapimpi`.
 
-The following text describes the interface provided by the three functions
+The following text describes the interface provided by the four functions
 of the `papi_mpi_lib` library.
 
 ```bash
@@ -25,6 +25,11 @@ void papi_mpi_finalise(void)
 ```
 
 The finalise function calls `pat_mpi_record(nstep+1,1,1,0)` (described below). All counter files are closed, then rank 0 closes the output file.
+
+```bash
+void papi_mpi_reset(const int initial_sync)
+```
+The reset function resets the counters to zero. If `initial_sync` is true `MPI_Barrier` is called before the reset.
 
 ```bash
 void papi_mpi_record(const int nstep, const int sstep, const int initial_sync, const int initial_rec)
