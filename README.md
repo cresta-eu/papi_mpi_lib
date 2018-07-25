@@ -55,3 +55,31 @@ script. For example, the following will record the number of floating point oper
 module load perftools
 export PAPI_RT_PERFCTR=PAPI_TOT_CYC,PAPI_FP_OPS,PAPI_L2_DCA
 ```
+
+The Fortran-like code below shows how the `papi_mpi_lib` library routines could be integrated into an application code, within the main time step loop.
+
+```bash
+...
+integer :: papi_res
+character(len=14) :: papi_out_fn = "app01papi.out"//CHAR(0)
+...
+call papi_mpi_initialise(papi_out_fn)
+
+do step=1,nsteps
+    call papi_mpi_reset(1)
+    call subroutine1(kstep,msteps)
+    papi_res = papi_mpi_record(kstep,1,1,0)
+    
+    call papi_mpi_reset(1)
+    call subroutine2(kstep,msteps)
+    papi_res = papi_mpi_record(kstep,2,1,0)
+    
+    call papi_mpi_reset(1)
+    call subroutine3(kstep,msteps)
+    papi_res = papi_mpi_record(kstep,3,1,0)
+enddo
+
+call papi_mpi_finalise()
+...
+
+```
