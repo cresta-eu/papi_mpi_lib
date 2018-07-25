@@ -14,24 +14,24 @@ your application code with `libpapimpi`.
 The following text describes the interface provided by the four functions
 of the `papi_mpi_lib` library.
 
-```bash
+```c
 void papi_mpi_initialise(const char* out_fn)
 ```
 
 The parameter, `out_fn`, points to a null-terminated string that specifies the name of the file that will hold the counter data: a NULL parameter value will set the output file name to `papi_log.out`. The initialise function also calls `papi_mpi_record(-1,1,1,0)` in order to determine a baseline for the counter data. In addition, rank 0 establishes a temporal baseline by calling `MPI_Wtime` and also writes a one-line header to the output file, which gives the library version followed by the names of the data items that will appear on subsequent lines.
 
-```bash
+```c
 void papi_mpi_finalise(void)
 ```
 
 The finalise function calls `pat_mpi_record(nstep+1,1,1,0)` (described below). All counter files are closed, then rank 0 closes the output file.
 
-```bash
+```c
 void papi_mpi_reset(const int initial_sync)
 ```
 The reset function resets the counters to zero. If `initial_sync` is true `MPI_Barrier` is called before the reset.
 
-```bash
+```c
 void papi_mpi_record(const int nstep, const int sstep, const int initial_sync, const int initial_rec)
 ```
 
