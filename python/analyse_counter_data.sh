@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # ./analyse_counter_data.sh papi PERF_COUNT_HW_CACHE_L1D PAPI_FP_OPS 
+# ./analyse_counter_data.sh papi PAPI_L2_DCA PAPI_FP_OPS
+# ./analyse_counter_data.sh papi PERF_COUNT_HW_CACHE_LL PAPI_FP_OPS 
+# ./analyse_counter_data.sh papi PERF_COUNT_HW_CACHE_NODE PAPI_FP_OPS  
 
 path=./jetcrf_$1/arc/$2/
 map="-min-substep 1 -max-substep 6"
