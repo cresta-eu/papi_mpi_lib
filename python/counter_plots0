@@ -1,0 +1,229 @@
+#!/usr/bin/env python
+# Copyright EPCC,
+# Michael Bareford, Copyright 2018
+# v1.0
+
+import sys
+import re
+import numpy as np
+import matplotlib.pyplot as plt
+
+plusminus = u'\u00b1'
+
+def have_package_pylab():
+    try:
+        import pylab
+        return True
+    except ImportError:
+        return False
+
+
+def help():
+    print """usage: counter_plots [-c counter-name] counter-readings-file
+
+    Arguments:
+
+        -c counter-name         the name of the counter whose value you wish to plot
+        counter-readings-file   the file containing the counter readings
+"""
+
+
+def parse_args():
+    global counter_readings_file
+    global cntr_name
+
+    counter_readings_file = ""
+  
+    for i in range(1,len(sys.argv)):
+        arg=sys.argv[i]
+        if arg == "-h" or arg == "-help":
+            help()
+            sys.exit()
+        elif arg == "-c":
+            cntr_name = sys.argv[i+1]
+            i += 2
+        else:
+            counter_readings_file = arg
+
+    print "Reading file ", counter_readings_file, "..."
+
+
+def parse_counter_readings():
+    global counter_readings_file
+
+    counters = []
+    cntr_i = 0
+    flops_i = 0
+    
+    with open(counter_readings_file) as fin:
+        for line in fin:
+            
+            cols = line.split(' ')
+            
+            if "_mpi_lib" in cols[0]:
+                counters = []
+                cols = line.split(',')
+                cols[-1] = cols[-1][0:len(cols[-1])-1]
+                
+                for cntr in reversed(cols):
+                    if cntr == " substep":
+                        break
+                    elif "perf::" in cntr:
+                        cntr = cntr[6:]
+                    counters = [cntr[1:]] + counters
+
+                if "pat_mpi_lib" in cols[0]:
+                    cntr_i = len(counters)-2
+                    flops_i = len(counters)-1
+                else:
+                    cntr_i = len(counters)-1
+                    flops_i = len(counters)-2
+                    
+            elif len(line) > 0:
+                step = int(cols[1])
+                if -1 < step and step <= len(test_dict):
+                    test_dict[step][counters[cntr_i]] = \
+                      { 'value': long(cols[3+cntr_i]), \
+                        'flops': long(cols[3+flops_i]), \
+                         'time': float(cols[0]) }
+                    
+                
+                    
+
+script_title = "counter_plots"
+script_version = "v1.0.0"
+
+cntr_name = ""
+counter_readings_file = ""
+parse_args()
+
+
+ARRAY_SIZES   = [64, 256, 1024, 4096]
+MIN_SERIES_ORDER = 1
+MAX_SERIES_ORDER = 29
+SERIES_ORDERS = range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1)
+LOOP_TYPES    = ["flat","inline","recursive"]
+PRECISIONS    = ["single","double"]
+TEST_COUNT = len(PRECISIONS)*len(LOOP_TYPES)*len(ARRAY_SIZES)*len(SERIES_ORDERS)
+do_scatter = False
+
+test_dict = {}
+m = 1
+
+for i in range(len(PRECISIONS)):
+    for j in range(len(LOOP_TYPES)):
+        for k in range(len(ARRAY_SIZES)):
+            for l in range(len(SERIES_ORDERS)):
+                label = PRECISIONS[i][0] + '-' + LOOP_TYPES[j][0] + '-' + str(ARRAY_SIZES[k]) + '-' + str(SERIES_ORDERS[l])
+                test_dict[m] = {"label": label}
+                m += 1
+    
+counters = []
+parse_counter_readings()
+
+
+test_labels = []
+test = 1
+while test <= TEST_COUNT:
+    label = test_dict[test]["label"]
+    label = label[:label.rfind('-')]
+    if "1024" in label:
+        label = label.replace("1024","1k")
+    elif "4096" in label:
+        label = label.replace("4096","4k")
+    test_labels.append(label)
+    test += len(SERIES_ORDERS)
+    
+counters = test_dict[1].keys()
+counters.remove("label")
+counters.sort()
+print counters
+if cntr_name in counters:
+  counters = [cntr_name]
+
+  
+ax = plt.gca()
+
+plt.xticks(range(1,len(test_labels)+1), test_labels, rotation="70", fontsize=10)
+plt.xlim(0,len(test_labels)+1)
+if 1 == len(counters):
+    plt.ylabel("counter value")
+    plt.title(counters[0])
+    figfilename = counters[0] + ".eps"
+    logfilename = counters[0] + ".txt"
+else:
+    plt.ylabel("coefficients of variation")
+    plt.title(counter_readings_file)
+    figfilename = "variations.eps"
+    logfilename = "variations.txt"
+
+    
+with open(logfilename, 'w') as log:
+    
+    for cntr in counters:
+        test = 1
+        ceoffs_var = []
+        means = []
+        stds = []
+        while test <= TEST_COUNT:
+            cntr_vals = []
+            for subtest in SERIES_ORDERS:
+                cntr_vals.append(test_dict[test][cntr]["value"])
+                test += 1
+            cntr_vals_np = np.array(cntr_vals)
+
+            mu = np.mean(cntr_vals_np)
+            sigma = np.std(cntr_vals_np)
+            coeff = sigma / mu
+
+            log.write(str(test) + ": " + str(round(mu,3)) + " +/- " + str(round(sigma,3)) + ", " + str(round(coeff,3)) + "\n")
+
+            if 1 == len(counters):
+                means.append(mu)
+                stds.append(sigma)
+            else:    
+                if 0.0 == mu:
+                    min_val = np.min(cntr_vals_np)
+                    max_val = np.max(cntr_vals_np)
+                    ext = max_val - min_val
+                    if ext > 0.0:
+                        mu = (mu - min_val) / ext
+                        sigma = (sigma - min_val) / ext
+
+                mu = abs(mu)
+                ceoffs_var.append((sigma/mu) if mu > 0.0 else 0.0)  
+
+        if 1 == len(counters):
+            if do_scatter:
+                plt.scatter(range(1,len(test_labels)+1), means, s=100, marker='.')
+            else:
+                plt.plot(range(1,len(test_labels)+1), means, marker='o')
+                plt.errorbar(range(1,len(test_labels)+1), means, yerr=stds)
+
+            means_np = np.array(means)
+            log.write(counters[0] + ": " + str(round(np.mean(means_np),3)) + " +/- " + str(round(np.std(means_np),3)) + " [" + str(round(np.max(means_np) - np.min(means_np),3)) + "]\n")
+        else:
+            if "_COUNT_HW_" in cntr:
+                cntr = cntr.replace("_COUNT_HW_",'_')
+            if do_scatter:
+                plt.scatter(range(1,len(test_labels)+1), ceoffs_var, s=100, marker='.', label=cntr)
+            else:
+                plt.plot(range(1,len(test_labels)+1), ceoffs_var, marker='o', label=cntr)
+
+            coeffs_np = np.array(ceoffs_var)
+            log.write(cntr + ": " + str(round(np.mean(coeffs_np),3)) + " +/- " + str(round(np.std(coeffs_np),3)) + " [" + str(round(np.max(coeffs_np) - np.min(coeffs_np),3)) + "]\n")
+
+            
+ymin, ymax = plt.ylim()
+
+if 1 == len(counters):
+  plt.ylim(-0.1,ymax)
+else:
+  plt.ylim(-0.1,5.0 if "cray" in counter_readings_file else 2.0)
+
+plt.legend(ncol=1, loc="upper right", fontsize=10)
+plt.savefig(figfilename)
+plt.clf()
+#plt.show()        
+      
+      
