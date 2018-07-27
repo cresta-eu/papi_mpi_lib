@@ -1,35 +1,37 @@
 The PAPI MPI library makes it possible to monitor a user-defined set of
-hardware performance counters during the execution of a MPI code running
+hardware performance counters during the execution of an MPI code running
 across multiple compute nodes.
 
-This repository holds source code for the `papi_mpi_lib` library (a wrapper to
-the low-level API defined by the PAPI library). There are also two small test
-harnesses that demonstrate how to call the library functions from Fortran and
-C codes.
+This repository holds source code for the `papi_mpi_lib` library (a wrapper to the [low-level API](http://icl.cs.utk.edu/papi/docs/dd/dbc/group__low__api.html) defined by the [PAPI library](http://icl.utk.edu/papi/)). There are also two small test harnesses that demonstrate how to call the library functions from Fortran and C codes.
 
 The makefile is intended for use on the ARCHER Cray XC30 MPP Supercomputer:
 the makefile script references the `PE_ENV` environment variable.
 
 Before compiling please load the papi module (`module load papi`),
-and then compile by running `make`. You can then have compile and link
+and then compile by running `make`. You can then compile and link
 your application code with `libpapimpi`.
 
-The following text describes the interface provided by the three functions
+The following text describes the interface provided by the four functions
 of the `papi_mpi_lib` library.
 
-```bash
+```c
 void papi_mpi_initialise(const char* out_fn)
 ```
 
 The parameter, `out_fn`, points to a null-terminated string that specifies the name of the file that will hold the counter data: a NULL parameter value will set the output file name to `papi_log.out`. The initialise function also calls `papi_mpi_record(-1,1,1,0)` in order to determine a baseline for the counter data. In addition, rank 0 establishes a temporal baseline by calling `MPI_Wtime` and also writes a one-line header to the output file, which gives the library version followed by the names of the data items that will appear on subsequent lines.
 
-```bash
+```c
 void papi_mpi_finalise(void)
 ```
 
 The finalise function calls `pat_mpi_record(nstep+1,1,1,0)` (described below). All counter files are closed, then rank 0 closes the output file.
 
-```bash
+```c
+void papi_mpi_reset(const int initial_sync)
+```
+The reset function resets the counters to zero. If `initial_sync` is true `MPI_Barrier` is called before the reset.
+
+```c
 void papi_mpi_record(const int nstep, const int sstep, const int initial_sync, const int initial_rec)
 ```
 
@@ -53,3 +55,33 @@ script. For example, the following will record the number of floating point oper
 module load perftools
 export PAPI_RT_PERFCTR=PAPI_TOT_CYC,PAPI_FP_OPS,PAPI_L2_DCA
 ```
+
+The Fortran-like code below shows how the `papi_mpi_lib` library routines could be integrated into an application code, within the main time step loop.
+
+```fortran
+...
+integer :: papi_res
+character(len=14) :: papi_out_fn = "app01papi.out"//CHAR(0)
+...
+call papi_mpi_initialise(papi_out_fn)
+
+do step=1,nsteps
+    call papi_mpi_reset(1)
+    call subroutine1()
+    papi_res = papi_mpi_record(step,1,1,0)
+    
+    call papi_mpi_reset(1)
+    call subroutine2()
+    papi_res = papi_mpi_record(step,2,1,0)
+    
+    call papi_mpi_reset(1)
+    call subroutine3()
+    papi_res = papi_mpi_record(step,3,1,0)
+end do
+
+call papi_mpi_finalise()
+...
+
+```
+
+The content of `app01papi.out` would then show how much the counter values changed as a consequence of calling subroutines 1 to 3.
