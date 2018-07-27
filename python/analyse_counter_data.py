@@ -272,7 +272,7 @@ def parse_counter_data(data_file_name, cntr_name, flops_name):
     INDEX_TIME    = 0
     INDEX_STEP    = 1
     INDEX_SUBSTEP = 2
-    index_value  = -1
+    index_value = -1
     index_flops = -1
 
     with open(data_file_name) as fin:
@@ -521,7 +521,7 @@ for i in range(len(cntr_dict["value"])):
         break
     
     substep = get_mapped_substep(cntr_dict["substep"][i])
-    if min_substep == substep:
+    if min_substep == substep and min_substep == cntr_dict["substep"][i]:
         step_values["step"].append(cntr_dict["step"][i])
         step_values["time"].append(0.0)
         step_values["value"].append(0)
@@ -590,19 +590,20 @@ elif plot_time:
 elif plot_flops:
     unit_label = get_unit_label(unit, "FLOPs")
     plt.ylabel(unit_label)
+    plot_values = step_values["flops"]
     plot_values = [x/unit for x in plot_values]
     plt.title(flops_cntr_name)
     fig_name += "-" + flops_cntr_name
 elif plot_flops_rate:
     unit_label = get_unit_label(unit, "FLOPs/sec")
     plt.ylabel(unit_label)
-    plot_values = [x/y for x,y in zip(step_values["flops"],step_values["time"])]
+    plot_values = step_values["flops-rate"]
     plot_values = [x/unit for x in plot_values]
     plt.title(flops_cntr_name)
     fig_name += "-" + flops_cntr_name + "-rate"
 elif plot_intensity:
     plt.ylabel("arithmetic intensity [FLOPs/byte]")
-    plot_values = [x/y for x,y in zip(step_values["flops"],step_values["value"])]
+    plot_values = step_values["intensity"]
     fig_name += "-" + flops_cntr_name + "-intensity"
     
 fig_name += ".eps"
