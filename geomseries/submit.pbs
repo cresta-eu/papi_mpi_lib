@@ -13,11 +13,11 @@ module load papi/5.5.1.4
 
 corecnt=`qstat -f $PBS_JOBID | awk '/Resource_List.ncpus/ {print $3}'`
 exename=./exe/O0/cray/geomseries_CRAY
-exename=./exe/O3/cray/geomseries_CRAY
-exename=./exe/O0/intel/geomseries_INTEL
-exename=./exe/O3/intel/geomseries_INTEL
-exename=./exe/O0/gnu/geomseries_GNU
-exename=./exe/O3/gnu/geomseries_GNU
+#exename=./exe/O3/cray/geomseries_CRAY
+#exename=./exe/O0/intel/geomseries_INTEL
+#exename=./exe/O3/intel/geomseries_INTEL
+#exename=./exe/O0/gnu/geomseries_GNU
+#exename=./exe/O3/gnu/geomseries_GNU
 
 export OMP_NUM_THREADS=1
 
