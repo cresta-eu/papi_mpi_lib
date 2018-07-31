@@ -30,3 +30,6 @@ A single geometric series calculation is actually repeated: once, using single p
 loop implementations, flat, inline and recursive; then the three calculations are repeated using double precision.<br>
 Hence, the factor of `696` mentioned earlier comes from `2*3*29*4`.
 
+The `submit.pbs` file is also intended for the ARCHER platform. This submission script calls six versions of the<br> `geomseries` executable that cover the Cray, Intel and GNU compilers with no optimisations (`-O0`) and with `-O3`.<br>
+Furthermore, the script is setup to evaluate several counters, one for each cache level and one for the node memory.
+
