@@ -423,11 +423,11 @@ if not cntr_exists:
     if 0 == len(cntr_name):
         print "Error, no counter name specified."
     else:
-        print "Error, counter \"" + cntr_name + "\" does not exist in log file."
+        print "Error, counter \"" + cntr_name + "\" does not exist in data file."
     sys.exit()
     
     
-print "Analysing counter data associated with " + cntr_name + '...'
+print "Analysing counter data associated with " + cntr_name + " in " + data_file_name + "..."
 
 max_step = cntr_dict["step"][-1]
 min_step = from_step if shave_steps < from_step else shave_steps+1
