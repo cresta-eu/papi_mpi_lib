@@ -24,7 +24,7 @@ FFLAGS = -O3
 
 all: papi_mpi_lib.o libpapimpi.a libpapimpi.so geomseries
 
-papi_mpi_lib.o: papi_mpi_lib.c papi_mpi_lib.h
+papi_mpi_lib.o: ../papi_mpi_lib.c ../papi_mpi_lib.h
 	$(CC) $(CFLAGS) -c ../papi_mpi_lib.c
 
 libpapimpi.a: papi_mpi_lib.o
@@ -33,7 +33,7 @@ libpapimpi.a: papi_mpi_lib.o
 libpapimpi.so: papi_mpi_lib.o
 	$(CC) ${CFLAGS} -shared -o libpapimpi.so papi_mpi_lib.o
 
-papi_mpi_lib_interface.o: papi_mpi_lib_interface.f90
+papi_mpi_lib_interface.o: ../papi_mpi_lib_interface.f90
 	$(FC) ${FFLAGS} -c ../papi_mpi_lib_interface.f90
 
 geomseries: geomseries.f90 papi_mpi_lib_interface.o papi_mpi_lib.o
