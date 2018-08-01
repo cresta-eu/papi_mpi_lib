@@ -52,7 +52,7 @@ To specify which counters you wish to monitor you must specify one environment v
 script. For example, the following will record the number of floating point operations (FLOPs) and the number of accesses to the level 2 data cache.
 
 ```bash
-module load perftools
+module load papi/5.5.1.4
 export PAPI_RT_PERFCTR=PAPI_TOT_CYC,PAPI_FP_OPS,PAPI_L2_DCA
 ```
 
