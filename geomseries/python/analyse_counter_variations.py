@@ -110,8 +110,12 @@ def parse_args():
         log_name = "variations.txt"
         fig_name = "variations.eps"
     else:
-        log_name = cntr_name + ".txt"
-        fig_name = cntr_name + ".eps"
+        if ":" in cntr_name:
+            fname = cntr_name.replace(":","-")
+        else:
+            fname = cntr_name
+        log_name = fname + ".txt"
+        fig_name = fname + ".eps"
 
    
 
