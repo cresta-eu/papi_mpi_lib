@@ -255,7 +255,8 @@ def parse_args():
         
 
     if 0 == len(log_name):
-        log_name = cntr_name + ".txt"
+        log_name = cntr_name.replace(":","-") if ":" in cntr_name else cntr_name
+        log_name = log_name + ".txt"
         
     if 0 == len(map_substep):
         for i in range(min_substep,max_substep+1):
@@ -575,7 +576,7 @@ plt.xlabel("step")
 plt.ylabel("counter value")
 plot_values = step_values["value"]
 plt.title(cntr_name)
-fig_name = cntr_name
+fig_name = cntr_name.replace(":","-") if ":" in cntr_name else cntr_name
 
 if plot_data_movement:
     unit_label = get_unit_label(unit, "B")
