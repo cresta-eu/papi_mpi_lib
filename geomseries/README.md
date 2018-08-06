@@ -17,7 +17,7 @@ the papi module (`module load papi`), and then compile by running `make`. The `g
 link to a freshly built `libpapimpi` library.
 
 It should be possible to run `geomseries` on non-Cray platforms too; however, it will be necessary to change<br>
-the makefile. What follows is a more detailed description of the workings of `geomseries`.
+the configure/make files. What follows is a more detailed description of the workings of `geomseries`.
 
 Each run of `geomseries` performs `696*np` sets of geometric series calculations, where `np` is the<br>
 number of MPI processes.
