@@ -1,7 +1,11 @@
 #!/bin/bash --login
 
 if [ "$1" == "archer" ]; then
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -flops PAPI_FP_OPS -ymax 5.0
+  if [ "$3" == "cray" ]; then
+    python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -flops PAPI_FP_OPS -ymax 5.0
+  else
+    python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -flops PAPI_FP_OPS -ymax 1.0
+  fi
 
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -flops PAPI_FP_OPS
