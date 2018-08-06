@@ -20,9 +20,11 @@ def have_package_pylab():
 
 
 def help():
-    print """usage: python analyse_counter_variations.py -data data_file_name [-cntr cntr_name] -flops flops_cntr_name
+    print """usage: python analyse_counter_variations.py -data <data_file_name> [-cntr <cntr_name>] -flops <cntr_name> [-single-flops <cntr_name> -double-flops <cntr_name>]
 
     If the -cntr argument is absent then the variation of all counters present in the data file will be plotted.
+    On some platforms there may be separate counters for single/double floating point operations; in which case
+    the -single-flops and -double-flops counters should be used.
 
     Arguments:
 
@@ -31,50 +33,56 @@ def help():
         -flops        Name of FLOPS counter
 
         -round        The number of decimal places to round logged results
+        -ymax         Maximum limit on y-axis
 """
 
 
 def init_args():
     global data_file_name
     global cntr_name
-    global flops_cntr_name
+    global flops_cntr_names
     global log_name
     global fig_name
     global rnd
+    global ymax
 
     data_file_name = ""
     cntr_name = ""
-    flops_cntr_name = ""
+    flops_cntr_names = []
     log_name = ""
     fig_name = ""
     rnd = 3
+    ymax = 0.0
 
     
 
 def print_args():
     global data_file_name
     global cntr_name
-    global flops_cntr_name
+    global flops_cntr_names
     global log_name
     global fig_name
     global rnd
+    global ymax
 
     print "data_file_name =", data_file_name
     print "cntr_name =", cntr_name
-    print "flops_cntr_name =", flops_cntr_name
+    print "flops_cntr_name(s) =", str(flops_cntr_names)
     print "log_name =", log_name
     print "fig_name =", fig_name
     print "rnd =", str(rnd)
+    print "ymax =", str(ymax)
 
 
     
 def parse_args():
     global data_file_name
     global cntr_name 
-    global flops_cntr_name
+    global flops_cntr_names
     global log_name
     global fig_name
     global rnd
+    global ymax
 
     init_args()
 
@@ -92,12 +100,23 @@ def parse_args():
         elif arg == "-cntr":
             cntr_name = sys.argv[i+1]
             i += 2
+            
         elif arg == "-flops":
-            flops_cntr_name = sys.argv[i+1]
+            flops_cntr_names.append(sys.argv[i+1])
             i += 2
-
+        elif arg == "-single-flops":
+            flops_cntr_names.append(sys.argv[i+1])
+            i += 2
+        elif arg == "-double-flops":
+            flops_cntr_names.append(sys.argv[i+1])
+            i += 2
+            
         elif arg == "-round":
             rnd = int(sys.argv[i+1])
+            i += 2
+
+        elif arg == "-ymax":
+            ymax = float(sys.argv[i+1])
             i += 2
 
         else:
@@ -117,19 +136,15 @@ def parse_args():
         log_name = fname + ".txt"
         fig_name = fname + ".eps"
 
-   
 
 
-def parse_counter_data(data_file_name, cntr_name, flops_name):
-
+def parse_counter_data(data_file_name, cntr_name, flops_names):
     global ARRAY_SIZES
-    global MIN_SERIES_ORDER
-    global MAX_SERIES_ORDER
     global SERIES_ORDERS
     global LOOP_TYPES
     global PRECISIONS
     global TEST_COUNT
-    
+
     cntr_dict = {}
     m = 1
     for i in range(len(PRECISIONS)):
@@ -139,14 +154,14 @@ def parse_counter_data(data_file_name, cntr_name, flops_name):
                     label = PRECISIONS[i][0] + '-' + LOOP_TYPES[j][0] + '-' + str(ARRAY_SIZES[k]) + '-' + str(SERIES_ORDERS[l])
                     cntr_dict[m] = {"label": label}
                     m += 1
-
+                    
     INDEX_TIME    = 0
     INDEX_STEP    = 1
     INDEX_SUBSTEP = 2
     index_cntr = -1
     index_flops = -1
     name = ""
-                         
+
     with open(data_file_name) as fin:
         for line in fin:
             
@@ -158,10 +173,11 @@ def parse_counter_data(data_file_name, cntr_name, flops_name):
                 cols[-1] = cols[-1][0:len(cols[-1])-1]
                 
                 for i, col_name in enumerate(reversed(cols)):
-                    if col_name == " substep":
+                    col_name = col_name[1:]
+                    if col_name == "substep":
                         # we have now iterated past the hardware counters
                         break
-                    if 0 < len(flops_cntr_name) and flops_cntr_name in col_name:
+                    if 0 < len(flops_cntr_names) and col_name in flops_cntr_names:
                         index_flops = len(cols)-1-i
                         if len(cols)-1 == index_flops:
                             index_cntr = index_flops-1
@@ -174,7 +190,7 @@ def parse_counter_data(data_file_name, cntr_name, flops_name):
                             name = name[6:]
 
                 if -1 == index_flops:
-                    print "Error, counter \"" + flops_cntr_name + "\" not found in data file."
+                    print "Error, none of counter(s) in " + str(flops_cntr_names) + " found in data file."
                     sys.exit()
                     
             elif len(line) > 0:
@@ -183,13 +199,13 @@ def parse_counter_data(data_file_name, cntr_name, flops_name):
                     # skip step recorded by pat/papi_mpi_initialise
                     # and skip record added by pat/papi_mpi_finalise
                     cntr_dict[step][name] = \
-                      { 'value': long(cols[index_cntr]), \
-                        'flops': long(cols[index_flops]), \
-                         'time': float(cols[INDEX_TIME]) }
+                      { "value": long(cols[index_cntr]), \
+                        "flops": long(cols[index_flops]), \
+                         "time": float(cols[INDEX_TIME]) }
     
     return cntr_dict
-                    
-                
+
+
 
 def round2precision(x, p):
     """
@@ -266,11 +282,11 @@ TEST_COUNT = len(PRECISIONS)*len(LOOP_TYPES)*len(ARRAY_SIZES)*len(SERIES_ORDERS)
     
 parse_args()
 
-if 0 == len(flops_cntr_name):
+if 0 == len(flops_cntr_names):
     print "Error, no flops counter name specified."
     sys.exit()
    
-cntr_dict = parse_counter_data(data_file_name, cntr_name, flops_cntr_name)
+cntr_dict = parse_counter_data(data_file_name, cntr_name, flops_cntr_names)
 
 # setup the list of data movement counters
 counters = cntr_dict[1].keys()
@@ -311,7 +327,7 @@ ax = plt.gca()
 plt.xticks(range(1,len(labels)+1), labels, rotation="70", fontsize=10)
 plt.xlim(0,len(labels)+1)
 
-if 1 == len(counters):
+if cntr_exists:
     plt.ylabel("counter value")
     plt.title(counters[0])
 else:
@@ -340,7 +356,7 @@ with open(log_name, 'w') as log:
             log.write(str(test) + ": " + str(round2precision(mu,3)) + " +/- " + str(round2precision(sigma,3)) + \
                 ", " + str(round2precision(coeff,3)) + "\n")
 
-            if 1 == len(counters):
+            if cntr_exists:
                 means.append(mu)
                 stds.append(sigma)
             else:    
@@ -355,7 +371,7 @@ with open(log_name, 'w') as log:
                 mu = abs(mu)
                 ceoffs_var.append((sigma/mu) if mu > 0.0 else 0.0)  
 
-        if 1 == len(counters):
+        if cntr_exists:
             if do_scatter:
                 plt.scatter(range(1,len(labels)+1), means, s=100, marker='.')
             else:
@@ -378,18 +394,11 @@ with open(log_name, 'w') as log:
                 " [" + str(round2precision(np.max(coeffs_np) - np.min(coeffs_np),3)) + "]\n")
 
             
-ymin, ymax = plt.ylim()
-
-if 1 == len(counters):
-  plt.ylim(-0.1,ymax)
-else:
-  plt.ylim(-0.1,5.0 if "cray" in data_file_name else 2.0)
-
+if 0.0 == ymax:
+  ymin, ymax = plt.ylim()
+plt.ylim(-0.1,ymax)
   
 plt.legend(ncol=1, loc="upper right", fontsize=10)
 plt.show()
 plt.savefig(fig_name)
 plt.clf()
-       
-      
-      
