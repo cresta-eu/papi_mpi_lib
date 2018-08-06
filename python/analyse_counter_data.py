@@ -618,7 +618,10 @@ plt.plot(step_values["step"], plot_values, marker='o')
 plt.xlim(step_values["step"][0],step_values["step"][-1])    
 values_np = np.array(plot_values)
 plt.ylim(np.min(values_np),np.max(values_np))
-ax.yaxis.set_ticks_position('both')
+
+ax.tick_params(direction="out")
+ax.xaxis.set_ticks_position("bottom")
+ax.yaxis.set_ticks_position("both")
 
 if show_plot:
     plt.show()

@@ -395,7 +395,9 @@ with open(log_name, 'w') as log:
                 " [" + str(round2precision(np.max(coeffs_np) - np.min(coeffs_np),3)) + "]\n")
 
 
-ax.yaxis.set_ticks_position('both')
+ax.tick_params(direction="out")
+ax.xaxis.set_ticks_position("bottom")
+ax.yaxis.set_ticks_position("both")
 if 0.0 == ymax:
   ymin, ymax = plt.ylim()
 plt.ylim(-0.1,ymax)
