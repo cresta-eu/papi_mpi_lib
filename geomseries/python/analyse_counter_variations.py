@@ -323,6 +323,7 @@ while test <= TEST_COUNT:
 
 do_scatter = False
 ax = plt.gca()
+fig = plt.gcf()
 
 plt.xticks(range(1,len(labels)+1), labels, rotation="70", fontsize=10)
 plt.xlim(0,len(labels)+1)
@@ -393,12 +394,13 @@ with open(log_name, 'w') as log:
             log.write(cntr + ": " + str(round2precision(np.mean(coeffs_np),3)) + " +/- " + str(round2precision(np.std(coeffs_np),3)) + \
                 " [" + str(round2precision(np.max(coeffs_np) - np.min(coeffs_np),3)) + "]\n")
 
-            
+
+ax.yaxis.set_ticks_position('both')
 if 0.0 == ymax:
   ymin, ymax = plt.ylim()
 plt.ylim(-0.1,ymax)
   
 plt.legend(ncol=1, loc="upper right", fontsize=10)
 plt.show()
-plt.savefig(fig_name)
+fig.savefig(fig_name, format='eps', dpi=1000)
 plt.clf()

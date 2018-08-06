@@ -570,6 +570,9 @@ with open(log_name, 'a') as log:
 
     log.write("\n")
 
+
+ax = plt.gca()
+fig = plt.gcf()
     
 # plotting (time) step data
 plt.xlabel("step")
@@ -615,8 +618,9 @@ plt.plot(step_values["step"], plot_values, marker='o')
 plt.xlim(step_values["step"][0],step_values["step"][-1])    
 values_np = np.array(plot_values)
 plt.ylim(np.min(values_np),np.max(values_np))
+ax.yaxis.set_ticks_position('both')
 
 if show_plot:
     plt.show()
-plt.savefig(fig_name)
+fig.savefig(fig_name, format='eps', dpi=1000)
 plt.clf()
