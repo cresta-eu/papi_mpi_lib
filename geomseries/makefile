@@ -12,15 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 FC=ftn
 CC=cc
-
-ifneq ($(PE_ENV),CRAY)
-  CFLAGS_EXTRA = -std=c99
+ifeq ($(PE_PLAT),cirrus)
+  FC=mpif90
+  CC=mpicc
+  ifeq ($(PE_ENV),intel)
+    FC=mpiifort
+    CC=mpiicc
+  endif
 endif
 
-CFLAGS = -O3 -fPIC $(CFLAGS_EXTRA)
-FFLAGS = -O3
+CFLAGS_EXTRA=-std=c99
+ifeq ($(PE_PLAT),cirrus)
+  FFLAGS_EXTRA=-DUSE_MPIF_H
+endif
+
+CFLAGS = -O$(PE_OPT_LEVEL) -fPIC $(CFLAGS_EXTRA)
+FFLAGS = -O$(PE_OPT_LEVEL) $(FFLAGS_EXTRA)
 
 all: papi_mpi_lib.o libpapimpi.a libpapimpi.so geomseries
 
@@ -36,8 +46,8 @@ libpapimpi.so: papi_mpi_lib.o
 papi_mpi_lib_interface.o: ../papi_mpi_lib_interface.f90
 	$(FC) ${FFLAGS} -c ../papi_mpi_lib_interface.f90
 
-geomseries: geomseries.f90 papi_mpi_lib_interface.o papi_mpi_lib.o
-	$(FC) ${FFLAGS} -o geomseries_$(PE_ENV) geomseries.f90 papi_mpi_lib_interface.o papi_mpi_lib.o
+geomseries: geomseries.F90 papi_mpi_lib_interface.o papi_mpi_lib.o
+	$(FC) ${FFLAGS} -o geomseries_$(PE_ENV) geomseries.F90 papi_mpi_lib_interface.o papi_mpi_lib.o -lpapi
 
 clean: 
 	$(RM) *.o *.mod *.out *.a *.so geomseries_$(PE_ENV)
