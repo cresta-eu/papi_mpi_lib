@@ -140,6 +140,8 @@ def parse_args():
 
 def parse_counter_data(data_file_name, cntr_name, flops_names):
     global ARRAY_SIZES
+    global MIN_SERIES_ORDER
+    global MAX_SERIES_ORDER
     global SERIES_ORDERS
     global LOOP_TYPES
     global PRECISIONS
@@ -151,8 +153,8 @@ def parse_counter_data(data_file_name, cntr_name, flops_names):
         for j in range(len(LOOP_TYPES)):
             for k in range(len(ARRAY_SIZES)):
                 for l in range(len(SERIES_ORDERS)):
-                    label = PRECISIONS[i][0] + '-' + LOOP_TYPES[j][0] + '-' + str(ARRAY_SIZES[k]) + '-' + str(SERIES_ORDERS[l])
-                    cntr_dict[m] = {"label": label}
+                    label = PRECISIONS[i][0] + "-" + LOOP_TYPES[j][0] + "-" + str(ARRAY_SIZES[k]) + "-" + str(SERIES_ORDERS[l])
+                    cntr_dict[m] = { "label": label }
                     m += 1
                     
     INDEX_TIME    = 0
@@ -271,13 +273,12 @@ def round2precision(x, p):
 script_title = "analyse_counter_variations"
 script_version = "v1.0.0"
 
-
-ARRAY_SIZES   = [64, 256, 1024, 4096]
+ARRAY_SIZES      = [64, 256, 1024, 4096]
 MIN_SERIES_ORDER = 1
 MAX_SERIES_ORDER = 29
-SERIES_ORDERS = range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1)
-LOOP_TYPES    = ["flat","inline","recursive"]
-PRECISIONS    = ["single","double"]
+SERIES_ORDERS    = range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1)
+LOOP_TYPES       = ["flat","inline","recursive"]
+PRECISIONS       = ["single","double"]
 TEST_COUNT = len(PRECISIONS)*len(LOOP_TYPES)*len(ARRAY_SIZES)*len(SERIES_ORDERS)
     
 parse_args()
@@ -308,16 +309,24 @@ else:
 
 
 # format the x-axis labels
-labels = []
+plot_labels = []
 test = 1
 while test <= TEST_COUNT:
     label = cntr_dict[test]["label"]
-    label = label[:label.rfind('-')]
-    if "1024" in label:
-        label = label.replace("1024","1k")
+    # capture loop type and array size
+    plot_label = label[label.find('-')+1:label.rfind('-')]
+    # abbreviate array size
+    if "64" in plot_label:
+        plot_label = plot_label.replace("64","064")
+    elif "1024" in plot_label:
+        plot_label = plot_label.replace("1024","01k")
     elif "4096" in label:
-        label = label.replace("4096","4k")
-    labels.append(label)
+        plot_label = plot_label.replace("4096","04k")
+    # append precision
+    plot_label += label[0]
+    # remove any hyphens
+    plot_label = plot_label.replace("-","")
+    plot_labels.append(plot_label)
     test += len(SERIES_ORDERS)
 
 
@@ -325,8 +334,8 @@ do_scatter = False
 ax = plt.gca()
 fig = plt.gcf()
 
-plt.xticks(range(1,len(labels)+1), labels, rotation="70", fontsize=10)
-plt.xlim(0,len(labels)+1)
+plt.xticks(range(1,len(plot_labels)+1), plot_labels, rotation="70", fontsize=10)
+plt.xlim(0,len(plot_labels)+1)
 
 if cntr_exists:
     plt.ylabel("counter value")
@@ -343,6 +352,7 @@ with open(log_name, 'w') as log:
         ceoffs_var = []
         means = []
         stds = []
+        
         while test <= TEST_COUNT:
             cntr_vals = []
             for subtest in SERIES_ORDERS:
@@ -374,11 +384,16 @@ with open(log_name, 'w') as log:
 
         if cntr_exists:
             if do_scatter:
-                plt.scatter(range(1,len(labels)+1), means, s=100, marker='.')
+                plt.scatter(range(1,len(plot_labels)+1), means, s=100, marker='.')
             else:
-                plt.plot(range(1,len(labels)+1), means, marker='o')
-                plt.errorbar(range(1,len(labels)+1), means, yerr=stds)
+                plt.semilogy(range(1,len(plot_labels)+1), means, marker='o')
 
+                lows = []
+                for i in range(len(stds)):
+                    lows.append(0.0 if stds[i] > means[i] else stds[i])
+
+                plt.errorbar(range(1,len(plot_labels)+1), means, yerr=[tuple(lows),tuple(stds)])
+                
             means_np = np.array(means)
             log.write(counters[0] + ": " + str(round2precision(np.mean(means_np),3)) + " +/- " + str(round2precision(np.std(means_np),3)) + \
                 " [" + str(round2precision(np.max(means_np) - np.min(means_np),3)) + "]\n")
@@ -386,9 +401,9 @@ with open(log_name, 'w') as log:
             if "_COUNT_HW_" in cntr:
                 cntr = cntr.replace("_COUNT_HW_",'_')
             if do_scatter:
-                plt.scatter(range(1,len(labels)+1), ceoffs_var, s=100, marker='.', label=cntr)
+                plt.scatter(range(1,len(plot_labels)+1), ceoffs_var, s=100, marker='.', label=cntr)
             else:
-                plt.plot(range(1,len(labels)+1), ceoffs_var, marker='o', label=cntr)
+                plt.plot(range(1,len(plot_labels)+1), ceoffs_var, marker='o', label=cntr)
 
             coeffs_np = np.array(ceoffs_var)
             log.write(cntr + ": " + str(round2precision(np.mean(coeffs_np),3)) + " +/- " + str(round2precision(np.std(coeffs_np),3)) + \
