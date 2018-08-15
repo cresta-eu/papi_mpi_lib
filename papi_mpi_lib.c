@@ -23,7 +23,11 @@
 #include <string.h>
 #include <mpi.h>
 #include "papi.h"
+
+#ifdef USE_PERF_EVENT_H 
 #include "perfmon/perf_event.h"
+#endif
+
 #include "papi_mpi_lib.h"
 
 
