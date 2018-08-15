@@ -184,6 +184,7 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
     global LOOP_TYPE_LABELS
     global PRECISION_LABELS
     global TEST_COUNT
+    global PRECISION_TEST_COUNT
 
     cntr_dict = {}
     label_key = 1
@@ -202,6 +203,7 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
     INDEX_TIME    = 0
     INDEX_STEP    = 1
     INDEX_SUBSTEP = 2
+    double_precision = False
     index_cntr = -1
     index_flops = -1
     name = ""
@@ -222,6 +224,7 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
                         # we have now iterated past the hardware counters
                         break
                     if 0 < len(flops_cntr_names) and col_name in flops_cntr_names:
+                        double_precision = True if "DP" in col_name else False
                         index_flops = len(cols)-1-i
                         if len(cols)-1 == index_flops:
                             index_cntr = index_flops-1
@@ -239,13 +242,16 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
                     
             elif len(line) > 0:
                 step = int(cols[INDEX_STEP])
-                if -1 < step and step <= TEST_COUNT:
+                if -1 < step:
                     # skip step recorded by pat/papi_mpi_initialise
-                    # and skip record added by pat/papi_mpi_finalise
-                    cntr_dict[step][name] = \
-                      { "value": long(cols[index_cntr]), \
-                        "flops": long(cols[index_flops]), \
-                         "time": float(cols[INDEX_TIME]) }
+                    if double_precision:
+                        step += PRECISION_TEST_COUNT
+                    if step <= TEST_COUNT:
+                        # and skip record added by pat/papi_mpi_finalise
+                        cntr_dict[step][name] = \
+                            { "value": long(cols[index_cntr]), \
+                              "flops": long(cols[index_flops]), \
+                               "time": float(cols[INDEX_TIME]) }
     
     return cntr_dict
 
@@ -323,6 +329,7 @@ LOOP_TYPE_LABELS = ["flat","inline","recursive"]
 PRECISION_LABELS = ["single","double"]
 PRECISION_SIZES  = [4,8]
 TEST_COUNT = len(PRECISION_LABELS)*len(LOOP_TYPE_LABELS)*len(ARRAY_SIZES)*len(SERIES_ORDERS)
+PRECISION_TEST_COUNT = TEST_COUNT/len(PRECISION_LABELS)
     
 parse_args()
 
@@ -343,7 +350,7 @@ counters.remove("label")
 counters.sort()
 print counters
 if cntr_name in counters:
-  counters = [cntr_name]
+    counters = [cntr_name]
   
 cntr_exists = (0 < len(cntr_name) and cntr_name in counters)
 if not cntr_exists and 0 < len(cntr_name):
@@ -386,13 +393,12 @@ while test <= TEST_COUNT:
     else:
         ref_value = (2.0*plot_flops_n-1.0)*(a_size**2)*nprocs
             
-    ref_value = round2precision(ref_value, rnd)
+    ref_value = float(round2precision(ref_value, rnd))
     ref_values.append(ref_value)
 
     # skip to next set of tests
     test += len(SERIES_ORDERS)
 
-    
 
 ax = plt.gca()
 fig = plt.gcf()
@@ -487,11 +493,15 @@ with open(log_name, 'w') as log:
 ax.tick_params(direction="out")
 ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("both")
-if 0.0 == ymax:
-  ymin, ymax = plt.ylim()
-plt.ylim(-0.1,ymax)
-  
-plt.legend(ncol=1, loc="upper left", fontsize=10)
-#plt.show()
+
+if cntr_exists:
+    plt.legend(ncol=2, loc="lower right", fontsize=9, framealpha=0.75)
+else:  
+    plt.legend(ncol=1, loc="upper left", fontsize=9, framealpha=0.75)
+    if 0.0 == ymax:
+        ymin, ymax = plt.ylim()
+    plt.ylim(-0.1,ymax)
+
+plt.show()
 fig.savefig(fig_name, format='eps', dpi=1000)
 plt.clf()
