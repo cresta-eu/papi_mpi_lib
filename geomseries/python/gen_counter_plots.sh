@@ -13,7 +13,7 @@ if [ "$1" == "archer" ]; then
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_LL:ACCESS -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_NODE:ACCESS -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14
 elif [ "$1" == "cirrus" ]; then
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -ymax 6.0
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -ymax 7.0
 
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D:ACCESS -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36
