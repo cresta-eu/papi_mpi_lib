@@ -24,14 +24,19 @@ ifeq ($(PE_PLAT),cirrus)
   endif
 endif
 
-ifneq ($(PE_ENV),CRAY)
-  CFLAGS_EXTRA=-std=c99
-endif
 ifeq ($(PE_PLAT),cirrus)
   FFLAGS_EXTRA=-DUSE_MPIF_H
 endif
 
-CFLAGS = -O$(PE_OPT_LEVEL) -fPIC $(CFLAGS_EXTRA)
+ifeq ($(PE_PLAT),archer)
+  CFLAGS_EXTRA=-DUSE_PERF_EVENT_H
+endif
+
+ifneq ($(PE_ENV),CRAY)
+  CFLAGS_EXTRA2=-std=c99
+endif
+
+CFLAGS = -O$(PE_OPT_LEVEL) -fPIC $(CFLAGS_EXTRA) $(CFLAGS_EXTRA2)
 FFLAGS = -O$(PE_OPT_LEVEL) $(FFLAGS_EXTRA)
 
 all: papi_mpi_lib.o libpapimpi.a libpapimpi.so geomseries
