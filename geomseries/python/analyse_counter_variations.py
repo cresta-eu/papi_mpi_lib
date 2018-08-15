@@ -28,61 +28,84 @@ def help():
 
     Arguments:
 
-        -data         Name of file containing counter recordings
-        -cntr         Name of counter whose value is some proxy for data movement
-        -flops        Name of FLOPS counter
+        -data            Name of file containing counter recordings
+        -cntr            Name of counter whose value is some proxy for data movement
+        -cntr-line-size  The unit counter value in number of bytes
 
-        -round        The number of decimal places to round logged results
-        -ymax         Maximum limit on y-axis
+        -flops           Name of FLOPS counter
+        -single-flops    Name of FLOPS counter for single precision operations
+        -double-flops    Name of FLOPS counter for double precision operations
+
+        -round           The number of decimal places to round logged results
+        -ymax            Maximum limit on y-axis
+        -nprocs          The number of parallel processes calculating geometric series
+
+        -plot-flops-n    Plot the flops measured for a particular order series n, where n is in the range 1-29;
+                         note, the flops measurements are those recorded when reading counter cntr
 """
 
 
 def init_args():
     global data_file_name
     global cntr_name
+    global cntr_line_size
     global flops_cntr_names
     global log_name
     global fig_name
     global rnd
     global ymax
+    global nprocs
+    global plot_flops_n
 
     data_file_name = ""
     cntr_name = ""
+    cntr_line_size = 64
     flops_cntr_names = []
     log_name = ""
     fig_name = ""
     rnd = 3
     ymax = 0.0
+    nprocs = 1
+    plot_flops_n = 0
 
     
 
 def print_args():
     global data_file_name
     global cntr_name
+    global cntr_line_size
     global flops_cntr_names
     global log_name
     global fig_name
     global rnd
     global ymax
+    global nprocs
+    global plot_flops_n
 
     print "data_file_name =", data_file_name
     print "cntr_name =", cntr_name
+    print "cntr_line_size =", str(cntr_line_size)
     print "flops_cntr_name(s) =", str(flops_cntr_names)
     print "log_name =", log_name
     print "fig_name =", fig_name
     print "rnd =", str(rnd)
     print "ymax =", str(ymax)
+    print "nprocs =", str(nprocs)
+    print "plot_flops_n =", str(plot_flops_n)
 
 
     
 def parse_args():
     global data_file_name
-    global cntr_name 
+    global cntr_name
+    global cntr_line_size
     global flops_cntr_names
     global log_name
     global fig_name
     global rnd
     global ymax
+    global nprocs
+    global plot_flops_n
 
     init_args()
 
@@ -99,6 +122,9 @@ def parse_args():
             i += 2
         elif arg == "-cntr":
             cntr_name = sys.argv[i+1]
+            i += 2
+        elif arg == "-cntr-line-size":
+            cntr_line_size = int(sys.argv[i+1])
             i += 2
             
         elif arg == "-flops":
@@ -119,6 +145,14 @@ def parse_args():
             ymax = float(sys.argv[i+1])
             i += 2
 
+        elif arg == "-nprocs":
+            nprocs = int(sys.argv[i+1])
+            i += 2
+
+        elif arg == "-plot-flops-n":
+            plot_flops_n = int(sys.argv[i+1])
+            i += 2
+
         else:
             print "Error, argument", arg, "not recognised."
             help()
@@ -133,29 +167,37 @@ def parse_args():
             fname = cntr_name.replace(":","-")
         else:
             fname = cntr_name
+
+        if 0 < plot_flops_n:
+            fname += "-flops-" + str(plot_flops_n)
+
         log_name = fname + ".txt"
         fig_name = fname + ".eps"
 
 
 
-def parse_counter_data(data_file_name, cntr_name, flops_names):
+def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, nprocs):
     global ARRAY_SIZES
     global MIN_SERIES_ORDER
     global MAX_SERIES_ORDER
     global SERIES_ORDERS
-    global LOOP_TYPES
-    global PRECISIONS
+    global LOOP_TYPE_LABELS
+    global PRECISION_LABELS
     global TEST_COUNT
 
     cntr_dict = {}
-    m = 1
-    for i in range(len(PRECISIONS)):
-        for j in range(len(LOOP_TYPES)):
+    label_key = 1
+    for i in range(len(PRECISION_LABELS)):
+        p_label = str(PRECISION_LABELS[i][0]) 
+        for j in range(len(LOOP_TYPE_LABELS)):
+            lt_label = str(LOOP_TYPE_LABELS[j][0])
             for k in range(len(ARRAY_SIZES)):
+                m = ARRAY_SIZES[k]
                 for l in range(len(SERIES_ORDERS)):
-                    label = PRECISIONS[i][0] + "-" + LOOP_TYPES[j][0] + "-" + str(ARRAY_SIZES[k]) + "-" + str(SERIES_ORDERS[l])
-                    cntr_dict[m] = { "label": label }
-                    m += 1
+                    n = SERIES_ORDERS[l]
+                    label = p_label + "-" + lt_label + "-" + str(m) + "-" + str(n)
+                    cntr_dict[label_key] = { "label": label }
+                    label_key += 1
                     
     INDEX_TIME    = 0
     INDEX_STEP    = 1
@@ -277,17 +319,23 @@ ARRAY_SIZES      = [64, 256, 1024, 4096]
 MIN_SERIES_ORDER = 1
 MAX_SERIES_ORDER = 29
 SERIES_ORDERS    = range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1)
-LOOP_TYPES       = ["flat","inline","recursive"]
-PRECISIONS       = ["single","double"]
-TEST_COUNT = len(PRECISIONS)*len(LOOP_TYPES)*len(ARRAY_SIZES)*len(SERIES_ORDERS)
+LOOP_TYPE_LABELS = ["flat","inline","recursive"]
+PRECISION_LABELS = ["single","double"]
+PRECISION_SIZES  = [4,8]
+TEST_COUNT = len(PRECISION_LABELS)*len(LOOP_TYPE_LABELS)*len(ARRAY_SIZES)*len(SERIES_ORDERS)
     
 parse_args()
 
 if 0 == len(flops_cntr_names):
     print "Error, no flops counter name specified."
     sys.exit()
+
+if 0 != plot_flops_n:
+    if plot_flops_n < MIN_SERIES_ORDER or plot_flops_n > MAX_SERIES_ORDER:
+        print "Error, plot-flops-n is out of range, 1-29."
+        sys.exit()
    
-cntr_dict = parse_counter_data(data_file_name, cntr_name, flops_cntr_names)
+cntr_dict = parse_counter_data(data_file_name, cntr_name, cntr_line_size, flops_cntr_names, nprocs)
 
 # setup the list of data movement counters
 counters = cntr_dict[1].keys()
@@ -301,36 +349,51 @@ cntr_exists = (0 < len(cntr_name) and cntr_name in counters)
 if not cntr_exists and 0 < len(cntr_name):
     print "Error, counter \"" + cntr_name + "\" does not exist in data file."
     sys.exit()
-   
-if cntr_exists:
-    print "Analysing counter data associated with " + cntr_name + " in " + data_file_name + "..."
-else:
-    print "Analysing counter data associated in " + data_file_name + "..."
 
 
-# format the x-axis labels
+# calculate reference values and format the x-axis labels
+ref_values = []
 plot_labels = []
 test = 1
 while test <= TEST_COUNT:
     label = cntr_dict[test]["label"]
+    
+    # capture the precision
+    p_label = str(label[0])
+    p_size  = 8 if "d" == p_label else 4
+
     # capture loop type and array size
-    plot_label = label[label.find('-')+1:label.rfind('-')]
+    as_label = label[label.find('-')+1:label.rfind('-')]
+    lt_label = as_label[:label.find('-')]
+    as_label = as_label[label.find('-')+1:]
+    a_size = int(as_label)
+    
     # abbreviate array size
-    if "64" in plot_label:
-        plot_label = plot_label.replace("64","064")
-    elif "1024" in plot_label:
-        plot_label = plot_label.replace("1024","01k")
-    elif "4096" in label:
-        plot_label = plot_label.replace("4096","04k")
-    # append precision
-    plot_label += label[0]
-    # remove any hyphens
-    plot_label = plot_label.replace("-","")
+    if 64 == a_size:
+        as_label = "064"
+    elif 1024 == a_size:
+        as_label = "01k"
+    elif 4096 == a_size:
+        as_label = "04k"
+
+    # construct plot label
+    plot_label = lt_label + as_label + p_label
     plot_labels.append(plot_label)
+
+    # calculate reference value
+    if 0 == plot_flops_n:
+        ref_value = (2.0*p_size*(a_size**2)*nprocs)/cntr_line_size
+    else:
+        ref_value = (2.0*plot_flops_n-1.0)*(a_size**2)*nprocs
+            
+    ref_value = round2precision(ref_value, rnd)
+    ref_values.append(ref_value)
+
+    # skip to next set of tests
     test += len(SERIES_ORDERS)
 
+    
 
-do_scatter = False
 ax = plt.gca()
 fig = plt.gcf()
 
@@ -339,10 +402,20 @@ plt.xlim(0,len(plot_labels)+1)
 
 if cntr_exists:
     plt.ylabel("counter value")
-    plt.title(counters[0])
+    if 0 == plot_flops_n:
+        plt.title(counters[0])
+        print "Analysing counter data associated with " + cntr_name + " in " + data_file_name + "..."
+    else:
+        data_name = "flops"
+        title = flops_cntr_names[0]
+        for flops_cntr in flops_cntr_names[1:]:
+            title += "," + flops_cntr
+        plt.title(title + ": n=" + str(plot_flops_n) + "  ("+ counters[0] + ")")
+        print "Analysing flops data associated with " + cntr_name + " in " + data_file_name + "..."
 else:
     plt.ylabel("coefficients of variation")
     plt.title(data_file_name)
+    print "Analysing counter data recorded in " + data_file_name + "..."
     
     
 with open(log_name, 'w') as log:
@@ -352,11 +425,14 @@ with open(log_name, 'w') as log:
         ceoffs_var = []
         means = []
         stds = []
+        flops_vals = []
         
         while test <= TEST_COUNT:
             cntr_vals = []
             for subtest in SERIES_ORDERS:
                 cntr_vals.append(cntr_dict[test][cntr]["value"])
+                if subtest == plot_flops_n:
+                    flops_vals.append(cntr_dict[test][cntr]["flops"])
                 test += 1
             cntr_vals_np = np.array(cntr_vals)
 
@@ -364,8 +440,8 @@ with open(log_name, 'w') as log:
             sigma = np.std(cntr_vals_np)
             coeff = sigma / mu
 
-            log.write(str(test) + ": " + str(round2precision(mu,3)) + " +/- " + str(round2precision(sigma,3)) + \
-                ", " + str(round2precision(coeff,3)) + "\n")
+            log.write(str(test) + ": " + str(round2precision(mu,rnd)) + " +/- " + str(round2precision(sigma,rnd)) + \
+                ", " + str(round2precision(coeff,rnd)) + "\n")
 
             if cntr_exists:
                 means.append(mu)
@@ -383,31 +459,29 @@ with open(log_name, 'w') as log:
                 ceoffs_var.append((sigma/mu) if mu > 0.0 else 0.0)  
 
         if cntr_exists:
-            if do_scatter:
-                plt.scatter(range(1,len(plot_labels)+1), means, s=100, marker='.')
-            else:
-                plt.semilogy(range(1,len(plot_labels)+1), means, marker='o')
-
+            if 0 == plot_flops_n:
+                plt.semilogy(range(1,len(plot_labels)+1), means, marker='o', color="red", label="recorded")
                 lows = []
                 for i in range(len(stds)):
                     lows.append(0.0 if stds[i] > means[i] else stds[i])
+                plt.errorbar(range(1,len(plot_labels)+1), means, yerr=[tuple(lows),tuple(stds)], color="red")
+            else:
+                plt.semilogy(range(1,len(plot_labels)+1), flops_vals, marker='o', color="red", label="recorded")
 
-                plt.errorbar(range(1,len(plot_labels)+1), means, yerr=[tuple(lows),tuple(stds)])
+            plt.semilogy(range(1,len(plot_labels)+1), ref_values, marker='o', color="gray", label="expected")
                 
             means_np = np.array(means)
-            log.write(counters[0] + ": " + str(round2precision(np.mean(means_np),3)) + " +/- " + str(round2precision(np.std(means_np),3)) + \
-                " [" + str(round2precision(np.max(means_np) - np.min(means_np),3)) + "]\n")
+            log.write(counters[0] + ": " + str(round2precision(np.mean(means_np),rnd)) + " +/- " + str(round2precision(np.std(means_np),rnd)) + \
+                " [" + str(round2precision(np.max(means_np) - np.min(means_np),rnd)) + "]\n")
         else:
             if "_COUNT_HW_" in cntr:
                 cntr = cntr.replace("_COUNT_HW_",'_')
-            if do_scatter:
-                plt.scatter(range(1,len(plot_labels)+1), ceoffs_var, s=100, marker='.', label=cntr)
-            else:
-                plt.plot(range(1,len(plot_labels)+1), ceoffs_var, marker='o', label=cntr)
+                
+            plt.plot(range(1,len(plot_labels)+1), ceoffs_var, marker='o', label=cntr)
 
             coeffs_np = np.array(ceoffs_var)
-            log.write(cntr + ": " + str(round2precision(np.mean(coeffs_np),3)) + " +/- " + str(round2precision(np.std(coeffs_np),3)) + \
-                " [" + str(round2precision(np.max(coeffs_np) - np.min(coeffs_np),3)) + "]\n")
+            log.write(cntr + ": " + str(round2precision(np.mean(coeffs_np),rnd)) + " +/- " + str(round2precision(np.std(coeffs_np),rnd)) + \
+                " [" + str(round2precision(np.max(coeffs_np) - np.min(coeffs_np),rnd)) + "]\n")
 
 
 ax.tick_params(direction="out")
@@ -417,7 +491,7 @@ if 0.0 == ymax:
   ymin, ymax = plt.ylim()
 plt.ylim(-0.1,ymax)
   
-plt.legend(ncol=1, loc="upper right", fontsize=10)
-plt.show()
+plt.legend(ncol=1, loc="upper left", fontsize=10)
+#plt.show()
 fig.savefig(fig_name, format='eps', dpi=1000)
 plt.clf()
