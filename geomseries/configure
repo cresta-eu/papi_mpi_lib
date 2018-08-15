@@ -25,6 +25,7 @@ if [ "$1" == "archer" ] || [ "$1" == "" ]; then
     echo "Error, unknown compiler, ${2}!"
     return
   fi
+  module load papi/5.5.1.4
 elif [ "$1" == "cirrus" ]; then
   export PE_PLAT=cirrus
   module purge
