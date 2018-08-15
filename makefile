@@ -14,12 +14,29 @@
 
 FC=ftn
 CC=cc
-
-ifneq ($(PE_ENV),CRAY)
-  CFLAGS_EXTRA = -std=c99
+ifeq ($(PE_PLAT),cirrus)
+  FC=mpif90
+  CC=mpicc
+  ifeq ($(PE_ENV),INTEL)
+    FC=mpiifort
+    CC=mpiicc
+  endif
 endif
 
-CFLAGS = -fPIC $(CFLAGS_EXTRA)
+ifeq ($(PE_PLAT),cirrus)
+  FFLAGS_EXTRA=-DUSE_MPIF_H
+endif
+
+ifeq ($(PE_PLAT),archer)
+  CFLAGS_EXTRA=-DUSE_PERF_EVENT_H
+endif
+
+ifneq ($(PE_ENV),CRAY)
+  CFLAGS_EXTRA2=-std=c99
+endif
+
+CFLAGS = -fPIC $(CFLAGS_EXTRA) $(CFLAGS_EXTRA2)
+FFLAGS = $(FFLAGS_EXTRA)
 
 all: papi_mpi_lib.o libpapimpi.a libpapimpi.so papi_mpi_test papi_mpi_testf
 
@@ -33,13 +50,13 @@ libpapimpi.so: papi_mpi_lib.o
 	$(CC) -fPIC -shared -o libpapimpi.so papi_mpi_lib.o
 
 papi_mpi_lib_interface.o: papi_mpi_lib_interface.f90
-	$(FC) -c papi_mpi_lib_interface.f90
+	$(FC) $(FFLAGS) -c papi_mpi_lib_interface.f90
 
-papi_mpi_testf: papi_mpi_testf.f90 papi_mpi_lib_interface.o papi_mpi_lib.o
-	$(FC) -o papi_mpi_testf papi_mpi_testf.f90 papi_mpi_lib_interface.o papi_mpi_lib.o
+papi_mpi_testf: papi_mpi_testf.F90 papi_mpi_lib_interface.o papi_mpi_lib.o
+	$(FC) $(FFLAGS) -o papi_mpi_testf papi_mpi_testf.F90 papi_mpi_lib_interface.o papi_mpi_lib.o -lpapi
 
 papi_mpi_test: papi_mpi_test.c papi_mpi_lib.o papi_mpi_lib.h
-	$(CC) $(CFLAGS) -o papi_mpi_test papi_mpi_test.c papi_mpi_lib.o
+	$(CC) $(CFLAGS) -o papi_mpi_test papi_mpi_test.c papi_mpi_lib.o -lpapi
 
 clean: 
 	$(RM) *.o *.mod *.out *.a *.so pat_mpi_test pat_mpi_testf
