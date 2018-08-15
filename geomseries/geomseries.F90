@@ -13,15 +13,16 @@ program geomseries
   integer, parameter :: MAX_SERIES_ORDER = 29
   integer, parameter :: LOOP_TYPE_CNT = 3
   integer, parameter :: PRECISION_TYPE_CNT = 2
+  integer, parameter :: SINGLE_PRECISION_TYPE = 1
+  integer, parameter :: DOUBLE_PRECISION_TYPE = 2
   
   integer :: nargs = 0
   integer :: iarg
   character(len=20) :: arg_name
-  logical :: cs_single = .true.
-  logical :: cs_double = .true.
   integer :: comm, rank, size, ierr
+  logical, dimension(PRECISION_TYPE_CNT) :: precision_types = (/ .true., .true. /)
   integer, dimension(ARRAY_SIZE_CNT) :: array_sizes = (/ 64, 256, 1024, 4096 /)
-  integer :: i, m, n, lt, id
+  integer :: pt, lt, i, m, n, id
   character (len=15) :: out_fn = "papi_test.out"//CHAR(0)
    
 
@@ -31,9 +32,9 @@ program geomseries
       call get_command_argument(iarg, arg_name)
       select case(adjustl(arg_name))
         case("-nosingle")
-          cs_single = .false.
+          precision_types(SINGLE_PRECISION_TYPE) = .false.
         case("-nodouble")
-          cs_double = .false.
+          precision_types(DOUBLE_PRECISION_TYPE) = .false.
       endselect
     enddo
   endif
@@ -46,21 +47,26 @@ program geomseries
   call papi_mpi_initialise(out_fn)
   
   id = 1
-  do i = 1, 4
-    m = array_sizes(i)
-    do n = 1, 29
+  do pt = 1, PRECISION_TYPE_CNT
+    if (precision_types(pt)) then
+        
       do lt = 1, LOOP_TYPE_CNT
-        if (cs_single) then
-          call calc_series_single(rank, m, n, lt, id)
-        endif
-        if (cs_double) then
-          call calc_series_double(rank, m, n, lt, id+1)
-        endif
-        id = id + 2
+        do i = 1, ARRAY_SIZE_CNT
+          m = array_sizes(i)  
+          do n = MIN_SERIES_ORDER, MAX_SERIES_ORDER
+            if (pt .eq. SINGLE_PRECISION_TYPE) then
+              call calc_series_single(rank, m, n, lt, id)
+            else if (pt .eq. DOUBLE_PRECISION_TYPE) then
+              call calc_series_double(rank, m, n, lt, id)
+            endif
+            id = id + 1
+          enddo
+        enddo
       enddo
-    enddo
+   
+    endif
   enddo
-
+     
   call papi_mpi_finalise()
    
   call MPI_FINALIZE(ierr)
@@ -81,11 +87,13 @@ subroutine calc_series_single(rk, m, n, lt, id)
     
   real(kind=GS_SINGLE_PRECISION), dimension(:,:), pointer :: im, om
   character(32) :: label
-  
-  write(label,'(i4,a1,i2,a1,i1,a1,i1)') m, ',', n, ',', lt, ',', 1
-  label = trim(label)
-  write(*,*) 'calc_series_single: label=', label
-  
+
+  if (0 .eq. rk) then
+    write(label,'(i4,a1,i2,a1,i1,a1,i1)') m, ',', n, ',', lt, ',', 1
+    label = trim(label)
+    write(*,*) 'calc_series_single: label=', label
+  endif
+ 
   nullify(im)
   nullify(om)
   
@@ -158,11 +166,13 @@ subroutine calc_series_double(rk, m, n, lt, id)
   
   real(kind=GS_DOUBLE_PRECISION), dimension(:,:), pointer :: imm, omm
   character(32) :: label
-  
-  write(label,'(i4,a1,i2,a1,i1,a1,i1)') m, ',', n, ',', lt, ',', 2
-  label = trim(label)
-  write(*,*) 'calc_series_double: label=', label
-  
+
+  if (0 .eq. rk) then
+    write(label,'(i4,a1,i2,a1,i1,a1,i1)') m, ',', n, ',', lt, ',', 2
+    label = trim(label)
+    write(*,*) 'calc_series_double: label=', label
+  endif
+ 
   nullify(imm)
   nullify(omm)
   
