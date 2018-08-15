@@ -42,6 +42,8 @@ def help():
 
         -plot-flops-n    Plot the flops measured for a particular order series n, where n is in the range 1-29;
                          note, the flops measurements are those recorded when reading counter cntr
+
+        -plot-expected-diffs  Plot the fractional difference between the recorded value and the expected value
 """
 
 
@@ -56,6 +58,7 @@ def init_args():
     global ymax
     global nprocs
     global plot_flops_n
+    global plot_expected_diffs
 
     data_file_name = ""
     cntr_name = ""
@@ -67,6 +70,7 @@ def init_args():
     ymax = 0.0
     nprocs = 1
     plot_flops_n = 0
+    plot_expected_diffs = False
 
     
 
@@ -81,6 +85,7 @@ def print_args():
     global ymax
     global nprocs
     global plot_flops_n
+    global plot_expected_diffs
 
     print "data_file_name =", data_file_name
     print "cntr_name =", cntr_name
@@ -92,6 +97,7 @@ def print_args():
     print "ymax =", str(ymax)
     print "nprocs =", str(nprocs)
     print "plot_flops_n =", str(plot_flops_n)
+    print "plot_expected_diffs =", str(plot_expected_diffs)
 
 
     
@@ -106,6 +112,7 @@ def parse_args():
     global ymax
     global nprocs
     global plot_flops_n
+    global plot_expected_diffs
 
     init_args()
 
@@ -153,6 +160,10 @@ def parse_args():
             plot_flops_n = int(sys.argv[i+1])
             i += 2
 
+        elif arg == "-plot-expected-diffs":
+            plot_expected_diffs = True
+            i += 1
+
         else:
             print "Error, argument", arg, "not recognised."
             help()
@@ -170,6 +181,9 @@ def parse_args():
 
         if 0 < plot_flops_n:
             fname += "-flops-" + str(plot_flops_n)
+
+        if plot_expected_diffs:
+            fname += "-diff"
 
         log_name = fname + ".txt"
         fig_name = fname + ".eps"
@@ -418,11 +432,15 @@ if cntr_exists:
             title += "," + flops_cntr
         plt.title(title + ": n=" + str(plot_flops_n) + "  ("+ counters[0] + ")")
         print "Analysing flops data associated with " + cntr_name + " in " + data_file_name + "..."
+    if plot_expected_diffs:
+        plt.ylabel("fractional difference (recorded / expected)")
 else:
     plt.ylabel("coefficients of variation")
     plt.title(data_file_name)
     print "Analysing counter data recorded in " + data_file_name + "..."
     
+
+
     
 with open(log_name, 'w') as log:
     
@@ -432,7 +450,7 @@ with open(log_name, 'w') as log:
         means = []
         stds = []
         flops_vals = []
-        
+                
         while test <= TEST_COUNT:
             cntr_vals = []
             for subtest in SERIES_ORDERS:
@@ -465,16 +483,26 @@ with open(log_name, 'w') as log:
                 ceoffs_var.append((sigma/mu) if mu > 0.0 else 0.0)  
 
         if cntr_exists:
-            if 0 == plot_flops_n:
-                plt.semilogy(range(1,len(plot_labels)+1), means, marker='o', color="red", label="recorded")
-                lows = []
-                for i in range(len(stds)):
-                    lows.append(0.0 if stds[i] > means[i] else stds[i])
-                plt.errorbar(range(1,len(plot_labels)+1), means, yerr=[tuple(lows),tuple(stds)], color="red")
-            else:
-                plt.semilogy(range(1,len(plot_labels)+1), flops_vals, marker='o', color="red", label="recorded")
+            frac_diffs = []
+            for i, ref in enumerate(ref_values):
+                if 0 == plot_flops_n:
+                    frac_diffs.append(means[i]/ref)
+                else:
+                    frac_diffs.append(flops_vals[i]/ref)
 
-            plt.semilogy(range(1,len(plot_labels)+1), ref_values, marker='o', color="gray", label="expected")
+            if plot_expected_diffs:
+                plt.plot(range(1,len(plot_labels)+1), frac_diffs, marker='o', color="blue")
+            else:        
+                if 0 == plot_flops_n:
+                    plt.semilogy(range(1,len(plot_labels)+1), means, marker='o', color="red", label="recorded")
+                    lows = []
+                    for i in range(len(stds)):
+                        lows.append(0.0 if stds[i] > means[i] else stds[i])
+                    plt.errorbar(range(1,len(plot_labels)+1), means, yerr=[tuple(lows),tuple(stds)], color="red")
+                else:
+                    plt.semilogy(range(1,len(plot_labels)+1), flops_vals, marker='o', color="red", label="recorded")
+
+                plt.semilogy(range(1,len(plot_labels)+1), ref_values, marker='o', color="gray", label="expected")
                 
             means_np = np.array(means)
             log.write(counters[0] + ": " + str(round2precision(np.mean(means_np),rnd)) + " +/- " + str(round2precision(np.std(means_np),rnd)) + \
@@ -495,7 +523,8 @@ ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("both")
 
 if cntr_exists:
-    plt.legend(ncol=2, loc="lower right", fontsize=9, framealpha=0.75)
+    if not plot_expected_diffs:
+        plt.legend(ncol=2, loc="lower right", fontsize=9, framealpha=0.75)
 else:  
     plt.legend(ncol=1, loc="upper left", fontsize=9, framealpha=0.75)
     if 0.0 == ymax:
