@@ -18,13 +18,15 @@ CC=cc
 ifeq ($(PE_PLAT),cirrus)
   FC=mpif90
   CC=mpicc
-  ifeq ($(PE_ENV),intel)
+  ifeq ($(PE_ENV),INTEL)
     FC=mpiifort
     CC=mpiicc
   endif
 endif
 
-CFLAGS_EXTRA=-std=c99
+ifneq ($(PE_ENV),CRAY)
+  CFLAGS_EXTRA=-std=c99
+endif
 ifeq ($(PE_PLAT),cirrus)
   FFLAGS_EXTRA=-DUSE_MPIF_H
 endif
