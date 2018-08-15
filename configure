@@ -1,0 +1,51 @@
+#!/bin/bash --login
+
+if [ -z "$PS1" ] ; then
+  echo -e "This script must be sourced. Use \"source ./configure [platform] [compiler]\" instead."
+  exit
+fi
+
+if [ "$1" == "" ]; then
+  echo "Choosing ARCHER platform by default..."
+fi
+
+if [ "$1" == "archer" ] || [ "$1" == "" ]; then
+  export PE_PLAT=archer
+  module unload PrgEnv-cray PrgEnv-intel PrgEnv-gnu
+  if [ "$2" == "" ]; then
+    echo "Choosing Cray compiler by default..."
+  fi
+  if [ "$2" == "cray" ] || [ "$2" == "" ]; then
+    module load PrgEnv-cray
+  elif [ "$2" == "intel" ]; then
+    module load PrgEnv-intel
+  elif [ "$2" == "gnu" ]; then
+    module load PrgEnv-gnu
+  else
+    echo "Error, unknown compiler, ${2}!"
+    return
+  fi
+elif [ "$1" == "cirrus" ]; then
+  export PE_PLAT=cirrus
+  module purge
+  module load mpt/2.16
+  if [ "$2" == "" ]; then
+    echo "Choosing GNU compiler by default..."
+  fi
+  if [ "$2" == "gnu" ] || [ "$2" == "" ]; then
+    export PE_ENV=GNU
+    module load gcc/6.2.0
+    module load papi-5.5.0-gcc-6.2.0-oaqr3yn
+  elif [ "$2" == "intel" ]; then
+    export PE_ENV=INTEL
+    module load intel-compilers-17/17.0.2.174
+    module load intel-mpi-17
+    module load papi-5.5.0-intel-17.0.2-a26lczv
+  else
+    echo "Error, unknown compiler, ${2}!"
+    return
+  fi
+else
+  echo "Error, unknown platform, ${1}!"
+  return
+fi
