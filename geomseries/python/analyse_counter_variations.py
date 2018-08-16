@@ -5,6 +5,7 @@
 
 import sys
 import re
+import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -43,7 +44,9 @@ def help():
         -plot-flops-n    Plot the flops measured for a particular order series n, where n is in the range 1-29;
                          note, the flops measurements are those recorded when reading counter cntr
 
-        -plot-expected-diffs  Plot the fractional difference between the recorded value and the expected value
+        -plot-error      Plot the ratio of the recorded value over the expected value
+        -plot-error-func Plot the ratio (see above) as a function of counter value
+        -no-log          Do not log plot data
 """
 
 
@@ -58,9 +61,12 @@ def init_args():
     global ymax
     global nprocs
     global plot_flops_n
-    global plot_expected_diffs
+    global plot_error
+    global plot_error_func
+    global no_log
 
     data_file_name = ""
+    log_data = False
     cntr_name = ""
     cntr_line_size = 64
     flops_cntr_names = []
@@ -70,7 +76,9 @@ def init_args():
     ymax = 0.0
     nprocs = 1
     plot_flops_n = 0
-    plot_expected_diffs = False
+    plot_error = False
+    plot_error_func = False
+    no_log = False
 
     
 
@@ -85,7 +93,9 @@ def print_args():
     global ymax
     global nprocs
     global plot_flops_n
-    global plot_expected_diffs
+    global plot_error
+    global plot_error_func
+    global no_log
 
     print "data_file_name =", data_file_name
     print "cntr_name =", cntr_name
@@ -97,7 +107,9 @@ def print_args():
     print "ymax =", str(ymax)
     print "nprocs =", str(nprocs)
     print "plot_flops_n =", str(plot_flops_n)
-    print "plot_expected_diffs =", str(plot_expected_diffs)
+    print "plot_error =", str(plot_error)
+    print "plot_error_func =", str(plot_error_func)
+    print "no_log =", str(no_log)
 
 
     
@@ -112,7 +124,9 @@ def parse_args():
     global ymax
     global nprocs
     global plot_flops_n
-    global plot_expected_diffs
+    global plot_error
+    global plot_error_func
+    global no_log
 
     init_args()
 
@@ -160,8 +174,15 @@ def parse_args():
             plot_flops_n = int(sys.argv[i+1])
             i += 2
 
-        elif arg == "-plot-expected-diffs":
-            plot_expected_diffs = True
+        elif arg == "-plot-error":
+            plot_error = True
+            i += 1
+        elif arg == "-plot-error-func":
+            plot_error_func = True
+            i += 1
+
+        elif arg == "-no-log":
+            no_log = True
             i += 1
 
         else:
@@ -182,8 +203,10 @@ def parse_args():
         if 0 < plot_flops_n:
             fname += "-flops-" + str(plot_flops_n)
 
-        if plot_expected_diffs:
-            fname += "-diff"
+        if plot_error:
+            fname += "-error"
+        elif plot_error_func:
+            fname += "-error-func"
 
         log_name = fname + ".txt"
         fig_name = fname + ".eps"
@@ -372,8 +395,8 @@ if not cntr_exists and 0 < len(cntr_name):
     sys.exit()
 
 
-# calculate reference values and format the x-axis labels
-ref_values = []
+# calculate expected values and format the x-axis labels
+exp_values = []
 plot_labels = []
 test = 1
 while test <= TEST_COUNT:
@@ -401,14 +424,14 @@ while test <= TEST_COUNT:
     plot_label = lt_label + as_label + p_label
     plot_labels.append(plot_label)
 
-    # calculate reference value
+    # calculate expected value
     if 0 == plot_flops_n:
-        ref_value = (2.0*p_size*(a_size**2)*nprocs)/cntr_line_size
+        exp_val = (2.0*p_size*(a_size**2)*nprocs)/cntr_line_size
     else:
-        ref_value = (2.0*plot_flops_n-1.0)*(a_size**2)*nprocs
+        exp_val = (2.0*plot_flops_n-1.0)*(a_size**2)*nprocs
             
-    ref_value = float(round2precision(ref_value, rnd))
-    ref_values.append(ref_value)
+    exp_val = float(round2precision(exp_val, rnd))
+    exp_values.append(exp_val)
 
     # skip to next set of tests
     test += len(SERIES_ORDERS)
@@ -417,8 +440,11 @@ while test <= TEST_COUNT:
 ax = plt.gca()
 fig = plt.gcf()
 
-plt.xticks(range(1,len(plot_labels)+1), plot_labels, rotation="70", fontsize=10)
-plt.xlim(0,len(plot_labels)+1)
+if plot_error_func:
+    plt.xlabel("counter value")
+else:
+    plt.xticks(range(1,len(plot_labels)+1), plot_labels, rotation="70", fontsize=10)
+    plt.xlim(0,len(plot_labels)+1)
 
 if cntr_exists:
     plt.ylabel("counter value")
@@ -432,15 +458,13 @@ if cntr_exists:
             title += "," + flops_cntr
         plt.title(title + ": n=" + str(plot_flops_n) + "  ("+ counters[0] + ")")
         print "Analysing flops data associated with " + cntr_name + " in " + data_file_name + "..."
-    if plot_expected_diffs:
-        plt.ylabel("fractional difference (recorded / expected)")
+    if plot_error or plot_error_func:
+        plt.ylabel("error ratio (recorded / expected)")
 else:
     plt.ylabel("coefficients of variation")
     plt.title(data_file_name)
     print "Analysing counter data recorded in " + data_file_name + "..."
     
-
-
     
 with open(log_name, 'w') as log:
     
@@ -449,14 +473,14 @@ with open(log_name, 'w') as log:
         ceoffs_var = []
         means = []
         stds = []
-        flops_vals = []
+        flops = []
                 
         while test <= TEST_COUNT:
             cntr_vals = []
             for subtest in SERIES_ORDERS:
                 cntr_vals.append(cntr_dict[test][cntr]["value"])
                 if subtest == plot_flops_n:
-                    flops_vals.append(cntr_dict[test][cntr]["flops"])
+                    flops.append(cntr_dict[test][cntr]["flops"])
                 test += 1
             cntr_vals_np = np.array(cntr_vals)
 
@@ -464,8 +488,8 @@ with open(log_name, 'w') as log:
             sigma = np.std(cntr_vals_np)
             coeff = sigma / mu
 
-            log.write(str(test) + ": " + str(round2precision(mu,rnd)) + " +/- " + str(round2precision(sigma,rnd)) + \
-                ", " + str(round2precision(coeff,rnd)) + "\n")
+            log.write(str(test) + ": " + round2precision(mu,rnd) + " +/- " + round2precision(sigma,rnd) + \
+                ", " + round2precision(coeff,rnd) + "\n")
 
             if cntr_exists:
                 means.append(mu)
@@ -483,39 +507,40 @@ with open(log_name, 'w') as log:
                 ceoffs_var.append((sigma/mu) if mu > 0.0 else 0.0)  
 
         if cntr_exists:
-            frac_diffs = []
-            for i, ref in enumerate(ref_values):
-                if 0 == plot_flops_n:
-                    frac_diffs.append(means[i]/ref)
-                else:
-                    frac_diffs.append(flops_vals[i]/ref)
+            errors = []
+            for i, exp_val in enumerate(exp_values):
+                rec_val = means[i] if 0 == plot_flops_n else flops[i]
+                errors.append(rec_val/exp_val)
 
-            if plot_expected_diffs:
-                plt.plot(range(1,len(plot_labels)+1), frac_diffs, marker='o', color="blue")
-            else:        
+            if plot_error:
+                plt.plot(range(1,len(plot_labels)+1), errors, marker='o', color="blue")
+            elif plot_error_func:
+                plt.semilogx(means if 0 == plot_flops_n else flops, errors,
+                    marker='o', linestyle='None', color="black")
+            else:
+                plt.semilogy(range(1,len(plot_labels)+1), means if 0 == plot_flops_n else flops,
+                    marker='o', color="red", label="recorded")
+                
                 if 0 == plot_flops_n:
-                    plt.semilogy(range(1,len(plot_labels)+1), means, marker='o', color="red", label="recorded")
                     lows = []
                     for i in range(len(stds)):
                         lows.append(0.0 if stds[i] > means[i] else stds[i])
                     plt.errorbar(range(1,len(plot_labels)+1), means, yerr=[tuple(lows),tuple(stds)], color="red")
-                else:
-                    plt.semilogy(range(1,len(plot_labels)+1), flops_vals, marker='o', color="red", label="recorded")
 
-                plt.semilogy(range(1,len(plot_labels)+1), ref_values, marker='o', color="gray", label="expected")
+                plt.semilogy(range(1,len(plot_labels)+1), exp_values, marker='o', color="gray", label="expected")
                 
             means_np = np.array(means)
-            log.write(counters[0] + ": " + str(round2precision(np.mean(means_np),rnd)) + " +/- " + str(round2precision(np.std(means_np),rnd)) + \
-                " [" + str(round2precision(np.max(means_np) - np.min(means_np),rnd)) + "]\n")
+            log.write(counters[0] + ": " + round2precision(np.mean(means_np),rnd) + " +/- " + round2precision(np.std(means_np),rnd) + \
+                " [" + round2precision(np.max(means_np) - np.min(means_np),rnd) + "]\n")
         else:
             if "_COUNT_HW_" in cntr:
                 cntr = cntr.replace("_COUNT_HW_",'_')
-                
+
             plt.plot(range(1,len(plot_labels)+1), ceoffs_var, marker='o', label=cntr)
 
             coeffs_np = np.array(ceoffs_var)
-            log.write(cntr + ": " + str(round2precision(np.mean(coeffs_np),rnd)) + " +/- " + str(round2precision(np.std(coeffs_np),rnd)) + \
-                " [" + str(round2precision(np.max(coeffs_np) - np.min(coeffs_np),rnd)) + "]\n")
+            log.write(cntr + ": " + round2precision(np.mean(coeffs_np),rnd) + " +/- " + round2precision(np.std(coeffs_np),rnd) + \
+                " [" + round2precision(np.max(coeffs_np) - np.min(coeffs_np),rnd) + "]\n")
 
 
 ax.tick_params(direction="out")
@@ -523,7 +548,7 @@ ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("both")
 
 if cntr_exists:
-    if not plot_expected_diffs:
+    if not (plot_error or plot_error_func):
         plt.legend(ncol=2, loc="lower right", fontsize=9, framealpha=0.75)
 else:  
     plt.legend(ncol=1, loc="upper left", fontsize=9, framealpha=0.75)
@@ -534,3 +559,6 @@ else:
 plt.show()
 fig.savefig(fig_name, format='eps', dpi=1000)
 plt.clf()
+
+if no_log:
+    os.remove(log_name)
