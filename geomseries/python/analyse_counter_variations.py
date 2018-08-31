@@ -215,6 +215,8 @@ def parse_args():
 
         if plot_flops:
             fname += "-flops"
+        elif plot_intensity:
+            fname += "-intensity"
 
         if plot_error:
             fname += "-error"
@@ -476,27 +478,26 @@ ax = plt.gca()
 fig = plt.gcf()
 
 if plot_error_func:
-    plt.xlabel("counter value")
     if plot_flops:
         plt.xlabel("FLOPs")
     elif plot_intensity:
-        plt.xlabel("arithmetic intensity")  
+        plt.xlabel("Arithmetic Intensity")
+    else:
+        plt.xlabel("Counter Value")
 else:
     plt.xticks(range(1,len(plot_labels)+1), plot_labels, rotation="70", fontsize=10)
     plt.xlim(0,len(plot_labels)+1)
 
 if cntr_exists:
-    plt.ylabel("counter value")
     if plot_flops:
-        data_name = "flops"
+        plt.ylabel("FLOPs")
         title = flops_cntr_names[0]
         for flops_cntr in flops_cntr_names[1:]:
             title += "," + flops_cntr
         plt.title(title + "  ("+ counters[0] + ")")
         print "Analysing flops data associated with " + cntr_name + " in " + data_file_name + "..."
     elif plot_intensity:
-        data_name = "arithmetic intensity"
-        plt.ylabel(data_name)
+        plt.ylabel("Arithmetic Intensity")
         title = flops_cntr_names[0]
         if 1 < len(flops_cntr_names):
             title += "("
@@ -507,12 +508,13 @@ if cntr_exists:
         plt.title(title + "  /  "+ counters[0])
         print "Analysing arithmetic intensity data associated with " + cntr_name + " in " + data_file_name + "..."
     else:
+        plt.ylabel("Counter Value")
         plt.title(counters[0])
         print "Analysing counter data associated with " + cntr_name + " in " + data_file_name + "..."
     if plot_error or plot_error_func:
-        plt.ylabel("error ratio (recorded / expected)")
+        plt.ylabel("Error Ratio (recorded / expected)")
 else:
-    plt.ylabel("coefficients of variation")
+    plt.ylabel("Coefficients of Variation")
     plt.title(data_file_name)
     print "Analysing counter data recorded in " + data_file_name + "..."
     
