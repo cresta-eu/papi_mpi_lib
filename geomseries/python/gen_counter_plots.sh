@@ -12,13 +12,11 @@ if [ "$1" == "archer" ]; then
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-error -no-log
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-error-func -no-log
 
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14 -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14 -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_LL:ACCESS -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14 -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_NODE:ACCESS -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14 -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-flops -plot-error -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-flops -plot-error-func -no-log
 
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14 -plot-error -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-flops-n 14 -plot-error-func -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-intensity -plot-error -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D -flops PAPI_FP_OPS -nprocs 24 -plot-intensity -plot-error-func -no-log
 
 elif [ "$1" == "cirrus" ]; then
 
@@ -32,13 +30,11 @@ elif [ "$1" == "cirrus" ]; then
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-error -no-log
   python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-error-func -no-log
 
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_L1D:ACCESS -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops-n 14 -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops-n 14 -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_LL:ACCESS -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops-n 14 -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PERF_COUNT_HW_CACHE_NODE:ACCESS -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops-n 14 -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops -plot-error -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops -plot-error-func -no-log
 
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops-n 14 -plot-error -no-log
-  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-flops-n 14 -plot-error-func -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-intensity -plot-error -no-log
+  python analyse_counter_variations.py -data ../arc/$3/$4/$2_test.out -cntr PAPI_L2_DCA -single-flops PAPI_SP_OPS -double-flops PAPI_DP_OPS -nprocs 36 -plot-intensity -plot-error-func -no-log
 
 fi
 
