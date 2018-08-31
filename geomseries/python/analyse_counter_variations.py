@@ -9,6 +9,7 @@ import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 plusminus = u'\u00b1'
 
@@ -41,8 +42,11 @@ def help():
         -ymax            Maximum limit on y-axis
         -nprocs          The number of parallel processes calculating geometric series
 
-        -plot-flops-n    Plot the flops measured for a particular order series n, where n is in the range 1-29;
+        -plot-flops      Plot the flops measured when calculating each geometric series set;
                          note, the flops measurements are those recorded when reading counter cntr
+    
+        -plot-intensity  Plot the arithmetic intensity for each geometric series set using
+                         counter cntr as the proxy for data movement
 
         -plot-error      Plot the ratio of the recorded value over the expected value
         -plot-error-func Plot the ratio (see above) as a function of counter value
@@ -60,7 +64,8 @@ def init_args():
     global rnd
     global ymax
     global nprocs
-    global plot_flops_n
+    global plot_flops
+    global plot_intensity
     global plot_error
     global plot_error_func
     global no_log
@@ -75,7 +80,8 @@ def init_args():
     rnd = 3
     ymax = 0.0
     nprocs = 1
-    plot_flops_n = 0
+    plot_flops = False
+    plot_intensity = False
     plot_error = False
     plot_error_func = False
     no_log = False
@@ -92,7 +98,8 @@ def print_args():
     global rnd
     global ymax
     global nprocs
-    global plot_flops_n
+    global plot_flops
+    global plot_intensity
     global plot_error
     global plot_error_func
     global no_log
@@ -106,7 +113,8 @@ def print_args():
     print "rnd =", str(rnd)
     print "ymax =", str(ymax)
     print "nprocs =", str(nprocs)
-    print "plot_flops_n =", str(plot_flops_n)
+    print "plot_flops =", str(plot_flops)
+    print "plot_intensity =", str(plot_intensity)
     print "plot_error =", str(plot_error)
     print "plot_error_func =", str(plot_error_func)
     print "no_log =", str(no_log)
@@ -123,7 +131,8 @@ def parse_args():
     global rnd
     global ymax
     global nprocs
-    global plot_flops_n
+    global plot_flops
+    global plot_intensity
     global plot_error
     global plot_error_func
     global no_log
@@ -170,9 +179,13 @@ def parse_args():
             nprocs = int(sys.argv[i+1])
             i += 2
 
-        elif arg == "-plot-flops-n":
-            plot_flops_n = int(sys.argv[i+1])
-            i += 2
+        elif arg == "-plot-flops":
+            plot_flops = True
+            i += 1
+
+        elif arg == "-plot-intensity":
+            plot_intensity = True
+            i += 1
 
         elif arg == "-plot-error":
             plot_error = True
@@ -200,8 +213,8 @@ def parse_args():
         else:
             fname = cntr_name
 
-        if 0 < plot_flops_n:
-            fname += "-flops-" + str(plot_flops_n)
+        if plot_flops:
+            fname += "-flops"
 
         if plot_error:
             fname += "-error"
@@ -356,7 +369,17 @@ def round2precision(x, p):
 
 
 script_title = "analyse_counter_variations"
-script_version = "v1.0.0"
+script_version = "v2.0.0"
+
+plt_markers = ['o', '^', 's', 'd']
+cbs_palette = ["#d7191c", "#fdae61", "#abd9e9", "#2c7bb6"]
+cbs_brush = 0
+
+lt_markers = {'f': 'o', 'i': '^', 'r': 's'}
+lt_labels = {'f': "flat", 'i': "inline", 'r': "recursive"}
+as_colours = {64: "#d7191c", 256: "#fdae61", 1024: "#abd9e9", 4096: "#2c7bb6"}
+as_labels = {64: "64", 256: "256", 1024: "1k", 4096: "4k"}
+as_weights = {64: 1.0, 256: 4.0, 1024: 16.0, 4096: 64.0}
 
 ARRAY_SIZES      = [64, 256, 1024, 4096]
 MIN_SERIES_ORDER = 1
@@ -373,11 +396,6 @@ parse_args()
 if 0 == len(flops_cntr_names):
     print "Error, no flops counter name specified."
     sys.exit()
-
-if 0 != plot_flops_n:
-    if plot_flops_n < MIN_SERIES_ORDER or plot_flops_n > MAX_SERIES_ORDER:
-        print "Error, plot-flops-n is out of range, 1-29."
-        sys.exit()
    
 cntr_dict = parse_counter_data(data_file_name, cntr_name, cntr_line_size, flops_cntr_names, nprocs)
 
@@ -398,6 +416,10 @@ if not cntr_exists and 0 < len(cntr_name):
 # calculate expected values and format the x-axis labels
 exp_values = []
 plot_labels = []
+ef_markers = []
+ef_colours = []
+ef_labels = []
+mn_weights = []
 test = 1
 while test <= TEST_COUNT:
     label = cntr_dict[test]["label"]
@@ -425,13 +447,26 @@ while test <= TEST_COUNT:
     plot_labels.append(plot_label)
 
     # calculate expected value
-    if 0 == plot_flops_n:
-        exp_val = (2.0*p_size*(a_size**2)*nprocs)/cntr_line_size
+    exp_cntr_val = ((2.0*p_size*(a_size**2)*nprocs)/cntr_line_size)*MAX_SERIES_ORDER
+    exp_flops_val = 0.0
+    for i in range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1):
+        exp_flops_val += (2.0*i-1.0)*(a_size**2)*nprocs
+            
+    if plot_flops:
+        exp_val = exp_flops_val
+    elif plot_intensity:
+        exp_val = exp_flops_val / (exp_cntr_val*cntr_line_size)
     else:
-        exp_val = (2.0*plot_flops_n-1.0)*(a_size**2)*nprocs
+        exp_val = exp_cntr_val
             
     exp_val = float(round2precision(exp_val, rnd))
     exp_values.append(exp_val)
+
+    ef_markers.append(lt_markers[lt_label])
+    ef_colours.append(as_colours[a_size])
+    ef_labels.append(lt_labels[lt_label]+"-"+as_labels[a_size])
+
+    mn_weights.append(as_weights[a_size])
 
     # skip to next set of tests
     test += len(SERIES_ORDERS)
@@ -442,22 +477,38 @@ fig = plt.gcf()
 
 if plot_error_func:
     plt.xlabel("counter value")
+    if plot_flops:
+        plt.xlabel("FLOPs")
+    elif plot_intensity:
+        plt.xlabel("arithmetic intensity")  
 else:
     plt.xticks(range(1,len(plot_labels)+1), plot_labels, rotation="70", fontsize=10)
     plt.xlim(0,len(plot_labels)+1)
 
 if cntr_exists:
     plt.ylabel("counter value")
-    if 0 == plot_flops_n:
-        plt.title(counters[0])
-        print "Analysing counter data associated with " + cntr_name + " in " + data_file_name + "..."
-    else:
+    if plot_flops:
         data_name = "flops"
         title = flops_cntr_names[0]
         for flops_cntr in flops_cntr_names[1:]:
             title += "," + flops_cntr
-        plt.title(title + ": n=" + str(plot_flops_n) + "  ("+ counters[0] + ")")
+        plt.title(title + "  ("+ counters[0] + ")")
         print "Analysing flops data associated with " + cntr_name + " in " + data_file_name + "..."
+    elif plot_intensity:
+        data_name = "arithmetic intensity"
+        plt.ylabel(data_name)
+        title = flops_cntr_names[0]
+        if 1 < len(flops_cntr_names):
+            title += "("
+        for flops_cntr in flops_cntr_names[1:]:
+            title += "," + flops_cntr
+        if 1 < len(flops_cntr_names):
+            title += ")"
+        plt.title(title + "  /  "+ counters[0])
+        print "Analysing arithmetic intensity data associated with " + cntr_name + " in " + data_file_name + "..."
+    else:
+        plt.title(counters[0])
+        print "Analysing counter data associated with " + cntr_name + " in " + data_file_name + "..."
     if plot_error or plot_error_func:
         plt.ylabel("error ratio (recorded / expected)")
 else:
@@ -471,72 +522,81 @@ with open(log_name, 'w') as log:
     for cntr in counters:
         test = 1
         ceoffs_var = []
-        means = []
-        stds = []
+        totals = []
         flops = []
                 
         while test <= TEST_COUNT:
             cntr_vals = []
+            flops_vals = []
             for subtest in SERIES_ORDERS:
                 cntr_vals.append(cntr_dict[test][cntr]["value"])
-                if subtest == plot_flops_n:
-                    flops.append(cntr_dict[test][cntr]["flops"])
+                flops_vals.append(cntr_dict[test][cntr]["flops"])
                 test += 1
             cntr_vals_np = np.array(cntr_vals)
+            flops_vals_np = np.array(flops_vals)
 
-            mu = np.mean(cntr_vals_np)
-            sigma = np.std(cntr_vals_np)
-            coeff = sigma / mu
+            flops_tot = np.sum(flops_vals_np)
+            cntr_tot = np.sum(cntr_vals_np)
+            cntr_mu = np.mean(cntr_vals_np)
+            cntr_sigma = np.std(cntr_vals_np)
+            cntr_coeff = cntr_sigma / cntr_mu
 
-            log.write(str(test) + ": " + round2precision(mu,rnd) + " +/- " + round2precision(sigma,rnd) + \
-                ", " + round2precision(coeff,rnd) + "\n")
+            log.write(str(test) + ": " + round2precision(cntr_mu,rnd) + " +/- " + round2precision(cntr_sigma,rnd) + \
+                ", " + round2precision(cntr_coeff,rnd) + "\n")
+            log.write(str(test) + ": " + round2precision(cntr_tot,rnd) + "\n")
+            log.write(str(test) + ": " + round2precision(flops_tot,rnd) + " FLOPs\n")
 
             if cntr_exists:
-                means.append(mu)
-                stds.append(sigma)
+                totals.append(cntr_tot)
+                flops.append(flops_tot)
             else:    
-                if 0.0 == mu:
+                if 0.0 == cntr_mu:
                     min_val = np.min(cntr_vals_np)
                     max_val = np.max(cntr_vals_np)
                     ext = max_val - min_val
                     if ext > 0.0:
-                        mu = (mu - min_val) / ext
-                        sigma = (sigma - min_val) / ext
+                        cntr_mu = (cntr_mu - min_val) / ext
+                        cntr_sigma = (cntr_sigma - min_val) / ext
 
-                mu = abs(mu)
-                ceoffs_var.append((sigma/mu) if mu > 0.0 else 0.0)  
+                cntr_mu = abs(cntr_mu)
+                ceoffs_var.append((cntr_sigma/cntr_mu) if cntr_mu > 0.0 else 0.0)  
 
         if cntr_exists:
             errors = []
+            rec_values = []
             for i, exp_val in enumerate(exp_values):
-                rec_val = means[i] if 0 == plot_flops_n else flops[i]
+                rec_val = totals[i]
+                if plot_flops:
+                    rec_val = flops[i]
+                elif plot_intensity:
+                    rec_val = float(flops[i]) / float(rec_val*cntr_line_size)
                 errors.append(rec_val/exp_val)
+                rec_values.append(rec_val)
 
             if plot_error:
                 plt.plot(range(1,len(plot_labels)+1), errors, marker='o', color="blue")
             elif plot_error_func:
-                plt.semilogx(means if 0 == plot_flops_n else flops, errors,
-                    marker='o', linestyle='None', color="black")
+                for i, rec_val in enumerate(rec_values):
+                    plt.semilogx(rec_val, errors[i], marker=ef_markers[i], linestyle='None', color=ef_colours[i])
             else:
-                plt.semilogy(range(1,len(plot_labels)+1), means if 0 == plot_flops_n else flops,
-                    marker='o', color="red", label="recorded")
+                if plot_intensity:
+                    plt.plot(range(1,len(plot_labels)+1), rec_values, marker='o', color="red", label="recorded")
+                    plt.plot(range(1,len(plot_labels)+1), exp_values, marker='d', color="gray", label="expected")
+                else:
+                    plt.semilogy(range(1,len(plot_labels)+1), rec_values, marker='o', color="red", label="recorded")
+                    plt.semilogy(range(1,len(plot_labels)+1), exp_values, marker='d', color="gray", label="expected")
                 
-                if 0 == plot_flops_n:
-                    lows = []
-                    for i in range(len(stds)):
-                        lows.append(0.0 if stds[i] > means[i] else stds[i])
-                    plt.errorbar(range(1,len(plot_labels)+1), means, yerr=[tuple(lows),tuple(stds)], color="red")
-
-                plt.semilogy(range(1,len(plot_labels)+1), exp_values, marker='o', color="gray", label="expected")
-                
-            means_np = np.array(means)
-            log.write(counters[0] + ": " + round2precision(np.mean(means_np),rnd) + " +/- " + round2precision(np.std(means_np),rnd) + \
-                " [" + round2precision(np.max(means_np) - np.min(means_np),rnd) + "]\n")
+            totals_np = np.array(totals)
+            log.write(counters[0] + ": " + round2precision(np.mean(totals_np),rnd) + " +/- " + round2precision(np.std(totals_np),rnd) + \
+                " [" + round2precision(np.max(totals_np) - np.min(totals_np),rnd) + "]\n")
         else:
             if "_COUNT_HW_" in cntr:
                 cntr = cntr.replace("_COUNT_HW_",'_')
 
-            plt.plot(range(1,len(plot_labels)+1), ceoffs_var, marker='o', label=cntr)
+            cbs_colour = cbs_palette[cbs_brush] if cbs_brush >= 0 and cbs_brush < len(cbs_palette) else ""
+            plt_marker = plt_markers[cbs_brush] if cbs_brush >= 0 and cbs_brush < len(plt_markers) else '.'
+            plt.plot(range(1,len(plot_labels)+1), ceoffs_var, marker=plt_marker, label=cntr, color=cbs_colour)
+            cbs_brush += 1
 
             coeffs_np = np.array(ceoffs_var)
             log.write(cntr + ": " + round2precision(np.mean(coeffs_np),rnd) + " +/- " + round2precision(np.std(coeffs_np),rnd) + \
@@ -550,6 +610,20 @@ ax.yaxis.set_ticks_position("both")
 if cntr_exists:
     if not (plot_error or plot_error_func):
         plt.legend(ncol=2, loc="lower right", fontsize=9, framealpha=0.75)
+    else:
+        if plot_error_func:
+            ef_legend_items = []
+            for a_size in sorted(as_colours.keys()):
+                ef_legend_items.append(
+                    Line2D([0], [0], marker='o', color=as_colours[a_size], markerfacecolor=as_colours[a_size],
+                        label=as_labels[a_size], markersize=7, linestyle = 'None'))
+            for lt in sorted(lt_labels.keys()):
+                ef_legend_items.append(
+                    Line2D([0], [0], marker=lt_markers[lt], color="gray", markerfacecolor="white",
+                        label=lt_labels[lt], markersize=7, linestyle = 'None'))
+                
+            ax.legend(handles=ef_legend_items, loc="upper left", numpoints=1)
+
 else:  
     plt.legend(ncol=1, loc="upper left", fontsize=9, framealpha=0.75)
     if 0.0 == ymax:
