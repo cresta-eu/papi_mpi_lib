@@ -12,9 +12,7 @@ The scheme described above has already been implemented by Kwack et al. 2018 for
 
 J. Kwack, G. Arnold, C. Mendes G. H. Bauer, National Center for Supercomputing Applications, University of Illinois at Urbana-Champaign, [Roofline Analysis with Cray Performance Analysis Tools (CrayPat) and Roofline-based Performance Projections for a Future Architecture](https://bluewaters.ncsa.illinois.edu/liferay-content/document-library/content/BWsymposium_2018_CrayPAT_based_Roofline_Analysis_v02.pdf), Cray User Group Conference Proceedings 2018.
 
-The code listed here has been tested on the ARCHER Cray XC30 MPP Supercomputer. Before compiling please load<br>
-the papi module (`module load papi`), and then compile by running `make`. The `geomseries` code should automatically<br>
-link to a freshly built `libpapimpi` library.
+The code listed here has been tested on the ARCHER Cray XC30 MPP Supercomputer. Before compiling please run the configure script to set the platform and compiler: e.g., `source ./configure archer cray 3` will prepare your environment for building `geomseries` on the ARCHER platform using the Cray compiler and with the optimisation level set to 3. The actual compilation is then done by running `make`. The `geomseries` code should automatically link to a freshly built `libpapimpi` library.
 
 It should be possible to run `geomseries` on non-Cray platforms too; however, it will be necessary to change<br>
 the configure/make files. What follows is a more detailed description of the workings of `geomseries`.
