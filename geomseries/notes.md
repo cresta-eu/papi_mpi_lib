@@ -17,3 +17,5 @@ at compile time, which means the geometric series tests can only be run for a sp
 a range of orders from 1 to 29 as in Kwack et al. 2018. Furthermore, the unroll directive is ignored by the `gfortran`
 compiler: this is a problem that can only be solved by rewriting the `geomseries` code in `C` and making use of the<br>
 `#pragma GCC unroll n` directive, retaining the `!DIR$ UNROLL n` directive for the Cray and Intel compilers.
+
+All this means that the inline loop will have to be withdrawn from the `Fortran` version of `geomseries`.
