@@ -121,9 +121,10 @@ subroutine calc_series_single(rk, m, n, lt, id)
     call papi_mpi_reset(1)
     do i=1,m
       do j=1,m
+        om(i,j) = 1.0
 !DIR$ INLINE         
-        do k=0,n
-          om(i,j) = im(i,j)**k
+        do k=1,n
+          om(i,j) = om(i,j) + im(i,j)**k
         enddo   
       enddo
     enddo
@@ -200,9 +201,10 @@ subroutine calc_series_double(rk, m, n, lt, id)
     call papi_mpi_reset(1)
     do i=1,m
       do j=1,m
+        omm(i,j) = 1.0
 !DIR$ INLINE         
-        do k=0,n
-          omm(i,j) = imm(i,j)**k
+        do k=1,n
+          omm(i,j) = omm(i,j) + imm(i,j)**k
         enddo   
       enddo
     enddo
