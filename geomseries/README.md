@@ -21,7 +21,7 @@ Each run of `geomseries` performs `464*np` sets of geometric series calculations
 number of MPI processes.
 
 A set of calculations depends on the size, `m`, of a 2D array; there are four sizes, 64, 256, 1024 and 4096.<br>
-For each element in the array, `n` geometric series calculations are performed six times, where `n` is the<br>
+For each element in the array, `n` geometric series calculations are performed four times, where `n` is the<br>
 series order in the range 1 to 29. 
 
 A single geometric series calculation is actually repeated: once, using single precision, for two different<br>
