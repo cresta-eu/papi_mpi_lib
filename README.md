@@ -7,8 +7,7 @@ This repository holds source code for the `papi_mpi_lib` library (a wrapper to t
 The makefile is intended for use on the ARCHER Cray XC30 MPP Supercomputer:
 the makefile script references the `PE_ENV` environment variable.
 
-Before compiling please load the papi module (`module load papi`),
-and then compile by running `make`. You can then compile and link
+Before compiling please load the papi module (`module load papi`) and then run the configure script to set the platform<br> and compiler: e.g., `source ./configure archer cray` will prepare your environment for building `papi_mpi_lib` on the ARCHER<br> platform using the Cray compiler. Next, compile by running `make`. You can now compile and link
 your application code with `libpapimpi`.
 
 The following text describes the interface provided by the four functions
