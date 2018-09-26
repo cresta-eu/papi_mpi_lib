@@ -41,6 +41,9 @@ def help():
         -round           The number of decimal places to round logged results
         -ymax            Maximum limit on y-axis
         -nprocs          The number of parallel processes calculating geometric series
+        -opt-level       The optimisation level used to compile the geomseries code
+
+        -legend-loc      The location of plot legend
 
         -plot-flops      Plot the flops measured when calculating each geometric series set;
                          note, the flops measurements are those recorded when reading counter cntr
@@ -64,6 +67,8 @@ def init_args():
     global rnd
     global ymax
     global nprocs
+    global opt_level
+    global legend_loc
     global plot_flops
     global plot_intensity
     global plot_error
@@ -80,6 +85,8 @@ def init_args():
     rnd = 3
     ymax = 0.0
     nprocs = 1
+    opt_level = 0
+    legend_loc = ""
     plot_flops = False
     plot_intensity = False
     plot_error = False
@@ -98,6 +105,8 @@ def print_args():
     global rnd
     global ymax
     global nprocs
+    global opt_level
+    global legend_loc
     global plot_flops
     global plot_intensity
     global plot_error
@@ -113,6 +122,8 @@ def print_args():
     print "rnd =", str(rnd)
     print "ymax =", str(ymax)
     print "nprocs =", str(nprocs)
+    print "opt_level = ", str(opt_level)
+    print "legend_loc =", legend_loc
     print "plot_flops =", str(plot_flops)
     print "plot_intensity =", str(plot_intensity)
     print "plot_error =", str(plot_error)
@@ -131,6 +142,8 @@ def parse_args():
     global rnd
     global ymax
     global nprocs
+    global opt_level
+    global legend_loc
     global plot_flops
     global plot_intensity
     global plot_error
@@ -179,6 +192,14 @@ def parse_args():
             nprocs = int(sys.argv[i+1])
             i += 2
 
+        elif arg == "-opt-level":
+            opt_level = int(sys.argv[i+1])
+            i += 2
+
+        elif arg == "-legend-loc":
+            legend_loc = sys.argv[i+1]
+            i += 2
+            
         elif arg == "-plot-flops":
             plot_flops = True
             i += 1
@@ -204,6 +225,9 @@ def parse_args():
             sys.exit()
         
 
+    if 0 == len(legend_loc):
+        legend_loc = "upper left"
+    
     if 0 == len(cntr_name):
         log_name = "variations.txt"
         fig_name = "variations.eps"
@@ -371,14 +395,14 @@ def round2precision(x, p):
 
 
 script_title = "analyse_counter_variations"
-script_version = "v2.0.0"
+script_version = "v3.0.0"
 
 plt_markers = ['o', '^', 's', 'd']
 cbs_palette = ["#d7191c", "#fdae61", "#abd9e9", "#2c7bb6"]
 cbs_brush = 0
 
-lt_markers = {'f': 'o', 'i': '^', 'r': 's'}
-lt_labels = {'f': "flat", 'i': "inline", 'r': "recursive"}
+lt_markers = {'f': 'o', 'r': '^'}
+lt_labels = {'f': "flat", 'r': "recursive"}
 as_colours = {64: "#d7191c", 256: "#fdae61", 1024: "#abd9e9", 4096: "#2c7bb6"}
 as_labels = {64: "64", 256: "256", 1024: "1k", 4096: "4k"}
 as_weights = {64: 1.0, 256: 4.0, 1024: 16.0, 4096: 64.0}
@@ -386,8 +410,9 @@ as_weights = {64: 1.0, 256: 4.0, 1024: 16.0, 4096: 64.0}
 ARRAY_SIZES      = [64, 256, 1024, 4096]
 MIN_SERIES_ORDER = 1
 MAX_SERIES_ORDER = 29
+NUM_SERIES_ORDER = MAX_SERIES_ORDER - MIN_SERIES_ORDER + 1
 SERIES_ORDERS    = range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1)
-LOOP_TYPE_LABELS = ["flat","inline","recursive"]
+LOOP_TYPE_LABELS = ["flat","recursive"]
 PRECISION_LABELS = ["single","double"]
 PRECISION_SIZES  = [4,8]
 TEST_COUNT = len(PRECISION_LABELS)*len(LOOP_TYPE_LABELS)*len(ARRAY_SIZES)*len(SERIES_ORDERS)
@@ -418,6 +443,7 @@ if not cntr_exists and 0 < len(cntr_name):
 # calculate expected values and format the x-axis labels
 exp_values = []
 plot_labels = []
+ef_double = []
 ef_markers = []
 ef_colours = []
 ef_labels = []
@@ -448,12 +474,33 @@ while test <= TEST_COUNT:
     plot_label = lt_label + as_label + p_label
     plot_labels.append(plot_label)
 
+    
     # calculate expected value
-    exp_cntr_val = ((2.0*p_size*(a_size**2)*nprocs)/cntr_line_size)*MAX_SERIES_ORDER
+    exp_cntr_val = ((2.0*p_size*(a_size**2)*nprocs)/cntr_line_size)*NUM_SERIES_ORDER
     exp_flops_val = 0.0
     for i in range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1):
-        exp_flops_val += (2.0*i-1.0)*(a_size**2)*nprocs
-            
+        exp_flops_val += 2.0*i - 1.0
+    exp_flops_val *= (a_size**2)*nprocs
+
+    # adjust the expected FLOP count for flat loops (involves exponentiation)
+    # the adjustment appears to depend on the optimisation level (at least for Intel v17.0.0.098)
+    # -O0: expected FLOP count is halved for single precision and halved for double precision
+    # -O1: expected FLOP count is halved for single precision only
+    # -O2: expected FLOP count is halved for single precision and reduced for double precision by a factor of 0.75
+    # -O3: expected FLOP count is halved for single precision only
+    if "f" == lt_label:
+        # flat loop type
+        if "s" == p_label:
+            # single precision
+            exp_flops_val *= 0.5
+        else:
+            # double precision
+            if 0 == opt_level:
+                exp_flops_val *= 0.5
+            elif 2 == opt_level:
+                exp_flops_val *= 0.75
+
+        
     if plot_flops:
         exp_val = exp_flops_val
     elif plot_intensity:
@@ -464,6 +511,7 @@ while test <= TEST_COUNT:
     exp_val = float(round2precision(exp_val, rnd))
     exp_values.append(exp_val)
 
+    ef_double.append(8 == p_size)
     ef_markers.append(lt_markers[lt_label])
     ef_colours.append(as_colours[a_size])
     ef_labels.append(lt_labels[lt_label]+"-"+as_labels[a_size])
@@ -500,7 +548,7 @@ if cntr_exists:
         plt.ylabel("Arithmetic Intensity")
         title = flops_cntr_names[0]
         if 1 < len(flops_cntr_names):
-            title += "("
+            title = "(" + title
         for flops_cntr in flops_cntr_names[1:]:
             title += "," + flops_cntr
         if 1 < len(flops_cntr_names):
@@ -517,7 +565,10 @@ else:
     plt.ylabel("Coefficients of Variation")
     plt.title(data_file_name)
     print "Analysing counter data recorded in " + data_file_name + "..."
-    
+
+single_markersize = 7.0
+double_markersize = 10.0
+def_markeredgewidth = 0.5
     
 with open(log_name, 'w') as log:
     
@@ -579,7 +630,13 @@ with open(log_name, 'w') as log:
                 plt.plot(range(1,len(plot_labels)+1), errors, marker='o', color="blue")
             elif plot_error_func:
                 for i, rec_val in enumerate(rec_values):
-                    plt.semilogx(rec_val, errors[i], marker=ef_markers[i], linestyle='None', color=ef_colours[i])
+                    if ef_double[i]:
+                        plt.semilogx(rec_val, errors[i], marker=ef_markers[i], linestyle='None',
+                        markerfacecolor="white", markeredgecolor="black",
+                        markersize=double_markersize, markeredgewidth=def_markeredgewidth)
+                    plt.semilogx(rec_val, errors[i], marker=ef_markers[i], linestyle='None',
+                        markerfacecolor=ef_colours[i], markeredgecolor=ef_colours[i],
+                        markersize=single_markersize)
             else:
                 if plot_intensity:
                     plt.plot(range(1,len(plot_labels)+1), rec_values, marker='o', color="red", label="recorded")
@@ -608,26 +665,33 @@ with open(log_name, 'w') as log:
 ax.tick_params(direction="out")
 ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("both")
-
+        
 if cntr_exists:
     if not (plot_error or plot_error_func):
-        plt.legend(ncol=2, loc="lower right", fontsize=9, framealpha=0.75)
+        plt.legend(ncol=2, loc=legend_loc, fontsize=9, framealpha=0.75)
     else:
         if plot_error_func:
             ef_legend_items = []
             for a_size in sorted(as_colours.keys()):
                 ef_legend_items.append(
-                    Line2D([0], [0], marker='o', color=as_colours[a_size], markerfacecolor=as_colours[a_size],
-                        label=as_labels[a_size], markersize=7, linestyle = 'None'))
+                    Line2D([0], [0], linestyle = "None", label=as_labels[a_size], marker='o',
+                        markeredgecolor=as_colours[a_size], markerfacecolor=as_colours[a_size],
+                        markersize=single_markersize))
+                               
             for lt in sorted(lt_labels.keys()):
                 ef_legend_items.append(
-                    Line2D([0], [0], marker=lt_markers[lt], color="gray", markerfacecolor="white",
-                        label=lt_labels[lt], markersize=7, linestyle = 'None'))
-                
-            ax.legend(handles=ef_legend_items, loc="upper left", numpoints=1)
+                    Line2D([0], [0], linestyle = "None", label=lt_labels[lt], marker=lt_markers[lt],
+                        markeredgecolor="black", markerfacecolor="white",
+                        markersize=single_markersize, markeredgewidth=def_markeredgewidth))
 
-else:  
-    plt.legend(ncol=1, loc="upper left", fontsize=9, framealpha=0.75)
+            ef_legend_items.append(
+                Line2D([0], [0], linestyle = "None", label="double",
+                    marker=r'$\circledcirc$'))
+            
+            ax.legend(handles=ef_legend_items, loc=legend_loc, numpoints=1)
+
+else:
+    plt.legend(ncol=1, loc=legend_loc, fontsize=9, framealpha=0.75)
     if 0.0 == ymax:
         ymin, ymax = plt.ylim()
     plt.ylim(-0.1,ymax)
