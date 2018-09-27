@@ -29,6 +29,7 @@ if [ "$1" == "archer" ] || [ "$1" == "" ]; then
 elif [ "$1" == "cirrus" ]; then
   export PE_PLAT=cirrus
   module purge
+  module load spack/cirrus
   module load mpt/2.16
   if [ "$2" == "" ]; then
     echo "Choosing GNU compiler by default..."
