@@ -5,7 +5,7 @@
 #PBS -l place=scatter:excl
 #PBS -A z04
 #PBS -j oe
-#PBS -q workq
+##PBS -q workq
 
 export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)
 cd $PBS_O_WORKDIR
@@ -16,7 +16,7 @@ exename=./exe/O0/gnu/geomseries_GNU
 #exename=./exe/O0/intel/geomseries_INTEL
 #exename=./exe/O3/intel/geomseries_INTEL
 
-
+module load spack/cirrus
 module load mpt/2.16
 if [[ $exename = *"gnu"* ]]; then
   module load gcc/6.2.0
