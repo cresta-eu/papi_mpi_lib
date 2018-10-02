@@ -41,6 +41,7 @@ def help():
         -round           The number of decimal places to round logged results
         -ymax            Maximum limit on y-axis
         -nprocs          The number of parallel processes calculating geometric series
+        -compiler_type   The type of compiler used to compile the geomseries code
         -opt-level       The optimisation level used to compile the geomseries code
 
         -legend-loc      The location of plot legend
@@ -67,6 +68,7 @@ def init_args():
     global rnd
     global ymax
     global nprocs
+    global compiler_type
     global opt_level
     global legend_loc
     global plot_flops
@@ -86,6 +88,7 @@ def init_args():
     ymax = 0.0
     nprocs = 1
     opt_level = 0
+    compiler_type = ""
     legend_loc = ""
     plot_flops = False
     plot_intensity = False
@@ -106,6 +109,7 @@ def print_args():
     global ymax
     global nprocs
     global opt_level
+    global compiler_type
     global legend_loc
     global plot_flops
     global plot_intensity
@@ -123,6 +127,7 @@ def print_args():
     print "ymax =", str(ymax)
     print "nprocs =", str(nprocs)
     print "opt_level = ", str(opt_level)
+    print "compiler_type = ", compiler_type
     print "legend_loc =", legend_loc
     print "plot_flops =", str(plot_flops)
     print "plot_intensity =", str(plot_intensity)
@@ -143,6 +148,7 @@ def parse_args():
     global ymax
     global nprocs
     global opt_level
+    global compiler_type
     global legend_loc
     global plot_flops
     global plot_intensity
@@ -194,6 +200,10 @@ def parse_args():
 
         elif arg == "-opt-level":
             opt_level = int(sys.argv[i+1])
+            i += 2
+
+        elif arg == "-compiler-type":
+            compiler_type = sys.argv[i+1]
             i += 2
 
         elif arg == "-legend-loc":
@@ -475,30 +485,20 @@ while test <= TEST_COUNT:
     plot_labels.append(plot_label)
 
     
-    # calculate expected value
+    # calculate expected data movement
     exp_cntr_val = ((2.0*p_size*(a_size**2)*nprocs)/cntr_line_size)*NUM_SERIES_ORDER
-    exp_flops_val = 0.0
-    for i in range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1):
-        exp_flops_val += 2.0*i - 1.0
-    exp_flops_val *= (a_size**2)*nprocs
 
-    # adjust the expected FLOP count for flat loops (involves exponentiation)
-    # the adjustment appears to depend on the optimisation level (at least for Intel v17.0.0.098)
-    # -O0: expected FLOP count is halved for single precision and halved for double precision
-    # -O1: expected FLOP count is halved for single precision only
-    # -O2: expected FLOP count is halved for single precision and reduced for double precision by a factor of 0.75
-    # -O3: expected FLOP count is halved for single precision only
+    # calculate expected flop count
+    series_range = range(MIN_SERIES_ORDER,MAX_SERIES_ORDER+1)
+    exp_flop_values = [(2.0*i-1.0) for i in series_range]
     if "f" == lt_label:
-        # flat loop type
-        if "s" == p_label:
-            # single precision
-            exp_flops_val *= 0.5
+        # flat loop involves exponentiation
+        if compiler_type == "intel":
+            if 0 == opt_level or "s" == p_label:
+                exp_flop_values = [i for i in series_range]
         else:
-            # double precision
-            if 0 == opt_level:
-                exp_flops_val *= 0.5
-            elif 2 == opt_level:
-                exp_flops_val *= 0.75
+            exp_flop_values = [(2.0*i-1.0)*math.log(1+i) for i in series_range]
+    exp_flops_val = sum(exp_flop_values)*(a_size**2)*nprocs
 
         
     if plot_flops:
