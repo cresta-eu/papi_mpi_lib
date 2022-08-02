@@ -12,7 +12,7 @@ The scheme described above has already been implemented by Kwack et al. 2018 for
 
 J. Kwack, G. Arnold, C. Mendes G. H. Bauer, National Center for Supercomputing Applications, University of Illinois at Urbana-Champaign, [Roofline Analysis with Cray Performance Analysis Tools (CrayPat) and Roofline-based Performance Projections for a Future Architecture](https://bluewaters.ncsa.illinois.edu/liferay-content/document-library/content/BWsymposium_2018_CrayPAT_based_Roofline_Analysis_v02.pdf), Cray User Group Conference Proceedings 2018.
 
-The code listed here has been tested on the [ARCHER2 HPE Cray EX Supercomputer](www.archer2.ac.uk). Before compiling,
+The code listed here has been tested on the [ARCHER2 HPE Cray EX Supercomputer](https://www.archer2.ac.uk/). Before compiling,
 please run the configure script to set the platform, compiler, Cray Programming Environment (CPE) release and optimisation level:
 e.g., `source ./configure archer2 cray 21.09 3` will prepare your environment for building `geomseries` on the ARCHER2 platform
 using the CPE 21.09 Cray compiler and with the optimisation level set to 3. The actual compilation is then done by running `make`.

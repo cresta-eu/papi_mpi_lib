@@ -4,7 +4,7 @@ across multiple compute nodes.
 
 This repository holds source code for the `papi_mpi_lib` library (a wrapper to the [low-level API](http://icl.cs.utk.edu/papi/docs/dd/dbc/group__low__api.html) defined by the [PAPI library](http://icl.utk.edu/papi/)). There are also two small test harnesses that demonstrate how to call the library functions from Fortran and C codes.
 
-The makefile is intended for use on the [ARCHER2 HPE Cray EX Supercomputer](www.archer2.ac.uk):
+The makefile is intended for use on the [ARCHER2 HPE Cray EX Supercomputer](https://www.archer2.ac.uk/):
 the makefile script references the `PE_ENV` environment variable.
 
 Before compiling please run the configure script to set the platform<br>, compiler and CPE version: e.g., `source ./configure archer cray 21.09` will prepare your environment for building `papi_mpi_lib` on the ARCHER platform using the Cray compiler that comes with the 21.09 CPE release. Next, compile by running `make`. You can now compile and link your application code with `libpapimpi`.
