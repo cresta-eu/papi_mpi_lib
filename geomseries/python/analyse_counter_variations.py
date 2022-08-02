@@ -22,7 +22,7 @@ def have_package_pylab():
 
 
 def help():
-    print """usage: python analyse_counter_variations.py -data <data_file_name> [-cntr <cntr_name>] -flops <cntr_name> [-single-flops <cntr_name> -double-flops <cntr_name>]
+    help_text = """usage: python analyse_counter_variations.py -data <data_file_name> [-cntr <cntr_name>] -flops <cntr_name> [-single-flops <cntr_name> -double-flops <cntr_name>]
 
     If the -cntr argument is absent then the variation of all counters present in the data file will be plotted.
     On some platforms there may be separate counters for single/double floating point operations; in which case
@@ -55,7 +55,8 @@ def help():
         -plot-error      Plot the ratio of the recorded value over the expected value
         -plot-error-func Plot the ratio (see above) as a function of counter value
         -no-log          Do not log plot data
-"""
+    """
+    print(help_text)
 
 
 def init_args():
@@ -117,23 +118,23 @@ def print_args():
     global plot_error_func
     global no_log
 
-    print "data_file_name =", data_file_name
-    print "cntr_name =", cntr_name
-    print "cntr_line_size =", str(cntr_line_size)
-    print "flops_cntr_name(s) =", str(flops_cntr_names)
-    print "log_name =", log_name
-    print "fig_name =", fig_name
-    print "rnd =", str(rnd)
-    print "ymax =", str(ymax)
-    print "nprocs =", str(nprocs)
-    print "opt_level = ", str(opt_level)
-    print "compiler_type = ", compiler_type
-    print "legend_loc =", legend_loc
-    print "plot_flops =", str(plot_flops)
-    print "plot_intensity =", str(plot_intensity)
-    print "plot_error =", str(plot_error)
-    print "plot_error_func =", str(plot_error_func)
-    print "no_log =", str(no_log)
+    print("data_file_name = " + data_file_name)
+    print("cntr_name = " + cntr_name)
+    print("cntr_line_size = " + str(cntr_line_size))
+    print("flops_cntr_name(s) = " + str(flops_cntr_names))
+    print("log_name = " + log_name)
+    print("fig_name = " + fig_name)
+    print("rnd = " + str(rnd))
+    print("ymax = " + str(ymax))
+    print("nprocs = " + str(nprocs))
+    print("opt_level = " + str(opt_level))
+    print("compiler_type = " + compiler_type)
+    print("legend_loc = " + legend_loc)
+    print("plot_flops = " + str(plot_flops))
+    print("plot_intensity = " + str(plot_intensity))
+    print("plot_error = " + str(plot_error))
+    print("plot_error_func = " + str(plot_error_func))
+    print("no_log = " + str(no_log))
 
 
     
@@ -230,7 +231,7 @@ def parse_args():
             i += 1
 
         else:
-            print "Error, argument", arg, "not recognised."
+            print("Error, argument" + arg + "not recognised.")
             help()
             sys.exit()
         
@@ -306,11 +307,21 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
                 
                 for i, col_name in enumerate(reversed(cols)):
                     col_name = col_name[1:]
+
                     if col_name == "substep":
                         # we have now iterated past the hardware counters
                         break
-                    if 0 < len(flops_cntr_names) and col_name in flops_cntr_names:
-                        double_precision = True if "DP" in col_name else False
+
+                    found_flops_counter = False
+                    if col_name in flops_cntr_names:
+                        found_flops_counter = True
+                        double_precision = True if "_DP" in col_name else False
+                    else:
+                        if "PAPI_FP_OPS" in col_name and "PAPI_FP_OPS" in flops_cntr_names:
+                            found_flops_counter = True
+                            double_precision = True if ":DP" in col_name else False
+
+                    if found_flops_counter:
                         index_flops = len(cols)-1-i
                         if len(cols)-1 == index_flops:
                             index_cntr = index_flops-1
@@ -323,7 +334,7 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
                             name = name[6:]
 
                 if -1 == index_flops:
-                    print "Error, none of counter(s) in " + str(flops_cntr_names) + " found in data file."
+                    print("Error, none of counter(s) in " + str(flops_cntr_names) + " found in data file.")
                     sys.exit()
                     
             elif len(line) > 0:
@@ -335,8 +346,8 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
                     if step <= TEST_COUNT:
                         # and skip record added by pat/papi_mpi_finalise
                         cntr_dict[step][name] = \
-                            { "value": long(cols[index_cntr]), \
-                              "flops": long(cols[index_flops]), \
+                            { "value": int(cols[index_cntr]), \
+                              "flops": int(cols[index_flops]), \
                                "time": float(cols[INDEX_TIME]) }
     
     return cntr_dict
@@ -431,22 +442,22 @@ PRECISION_TEST_COUNT = TEST_COUNT/len(PRECISION_LABELS)
 parse_args()
 
 if 0 == len(flops_cntr_names):
-    print "Error, no flops counter name specified."
+    print("Error, no flops counter name specified.")
     sys.exit()
    
 cntr_dict = parse_counter_data(data_file_name, cntr_name, cntr_line_size, flops_cntr_names, nprocs)
 
 # setup the list of data movement counters
-counters = cntr_dict[1].keys()
+counters = list(cntr_dict[1].keys())
 counters.remove("label")
 counters.sort()
-print counters
+print(counters)
 if cntr_name in counters:
     counters = [cntr_name]
   
 cntr_exists = (0 < len(cntr_name) and cntr_name in counters)
 if not cntr_exists and 0 < len(cntr_name):
-    print "Error, counter \"" + cntr_name + "\" does not exist in data file."
+    print("Error, counter \"" + cntr_name + "\" does not exist in data file.")
     sys.exit()
 
 
@@ -543,7 +554,7 @@ if cntr_exists:
         for flops_cntr in flops_cntr_names[1:]:
             title += "," + flops_cntr
         plt.title(title + "  ("+ counters[0] + ")")
-        print "Analysing flops data associated with " + cntr_name + " in " + data_file_name + "..."
+        print("Analysing flops data associated with " + cntr_name + " in " + data_file_name + "...")
     elif plot_intensity:
         plt.ylabel("Arithmetic Intensity")
         title = flops_cntr_names[0]
@@ -554,22 +565,28 @@ if cntr_exists:
         if 1 < len(flops_cntr_names):
             title += ")"
         plt.title(title + "  /  "+ counters[0])
-        print "Analysing arithmetic intensity data associated with " + cntr_name + " in " + data_file_name + "..."
+        print("Analysing arithmetic intensity data associated with " + cntr_name + " in " + data_file_name + "...")
     else:
         plt.ylabel("Counter Value")
         plt.title(counters[0])
-        print "Analysing counter data associated with " + cntr_name + " in " + data_file_name + "..."
+        print("Analysing counter data associated with " + cntr_name + " in " + data_file_name + "...")
     if plot_error or plot_error_func:
         plt.ylabel("Error Ratio (recorded / expected)")
 else:
     plt.ylabel("Coefficients of Variation")
     plt.title(data_file_name)
-    print "Analysing counter data recorded in " + data_file_name + "..."
+    print("Analysing counter data recorded in " + data_file_name + "...")
 
 single_markersize = 7.0
 double_markersize = 10.0
 def_markeredgewidth = 0.5
-    
+
+#for ck in cntr_dict:
+#    print(ck)
+#    for ck2 in cntr_dict[ck]:
+#        print(ck2)
+
+
 with open(log_name, 'w') as log:
     
     for cntr in counters:
@@ -697,6 +714,7 @@ else:
     plt.ylim(-0.1,ymax)
 
 plt.show()
+print("fig_name="+fig_name)
 fig.savefig(fig_name, format='eps', dpi=1000)
 plt.clf()
 

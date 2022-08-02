@@ -115,7 +115,7 @@ void papi_mpi_initialise(const char* log_fpath) {
   ///////////////////////////////////////////////////////////
   ncntrs = 0;
   cntr_list_str = getenv("PAPI_RT_PERFCTR");
-  str_len = strlen(cntr_list_str);
+  str_len = (NULL == cntr_list_str) ? 0 : strlen(cntr_list_str);
   ncntrs = str_len > 0 ? 1 : 0;
   for (int i = 0; i < str_len; i++) {
     if (PAPI_RT_SEPARATOR[0] == cntr_list_str[i]) {
@@ -314,6 +314,7 @@ int papi_mpi_read_counter_values(const int nstep, const int sstep) {
     if (PAPI_OK != papi_res) {
       printf("%d: PAPI_read failed with error %d.\n", rank, papi_res);
     }
+
     MPI_Reduce(cntr_values, cntr_value_totals, ncntrs, MPI_UNSIGNED_LONG_LONG, MPI_SUM, root_rank, MPI_COMM_WORLD);
   }
 

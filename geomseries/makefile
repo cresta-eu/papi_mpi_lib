@@ -15,20 +15,8 @@
 
 FC=ftn
 CC=cc
-ifeq ($(PE_PLAT),cirrus)
-  FC=mpif90
-  CC=mpicc
-  ifeq ($(PE_ENV),INTEL)
-    FC=mpiifort
-    CC=mpiicc
-  endif
-endif
 
-ifeq ($(PE_PLAT),cirrus)
-  FFLAGS_EXTRA=-DUSE_MPIF_H
-endif
-
-ifeq ($(PE_PLAT),archer)
+ifeq ($(PE_PLATFORM),archer2)
   CFLAGS_EXTRA=-DUSE_PERF_EVENT_H
 endif
 

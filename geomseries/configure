@@ -1,71 +1,55 @@
 #!/bin/bash --login
 
 if [ -z "$PS1" ] ; then
-  echo -e "This script must be sourced. Use \"source ./configure [platform] [compiler [optimisation level]]\" instead."
+  echo -e "This script must be sourced. Use \"source ./configure [platform] [compiler] [version] [optimisation level]\" instead."
   exit
 fi
 
-if [ "$1" == "" ]; then
-  echo "Choosing ARCHER platform by default..."
+
+export PE_PLATFORM=$1
+PE_COMPILER=$2
+PE_VERSION=$3
+
+if [ "${PE_PLATFORM}" == "" ]; then
+  echo "Choosing ARCHER2 platform by default..."
+  PE_PLATFORM="archer2"
 fi
 
-if [ "$1" == "archer" ] || [ "$1" == "" ]; then
-  export PE_PLAT=archer
-  module unload PrgEnv-cray PrgEnv-intel PrgEnv-gnu
-  if [ "$2" == "" ]; then
-    echo "Choosing Cray compiler by default..."
-  fi
-  if [ "$2" == "cray" ] || [ "$2" == "" ]; then
-    module load PrgEnv-cray
-  elif [ "$2" == "intel" ]; then
-    module load PrgEnv-intel
-  elif [ "$2" == "gnu" ]; then
-    module load PrgEnv-gnu
+if [ "${PE_PLATFORM}" == "archer2" ]; then
+  module -q restore
+  if [ "${PE_VERSION}" == "" ]; then
+    echo "Default CPE release loaded."
   else
-    echo "Error, unknown compiler, ${2}!"
-    return
+    module load cpe/${PE_VERSION}
   fi
-  module load papi/5.5.1.4
-elif [ "$1" == "cirrus" ]; then
-  export PE_PLAT=cirrus
-  module purge
-  module load spack/cirrus
-  module load mpt/2.16
-  if [ "$2" == "" ]; then
-    echo "Choosing GNU compiler by default..."
-  fi
-  if [ "$2" == "gnu" ] || [ "$2" == "" ]; then
-    export PE_ENV=GNU
-    module load gcc/6.2.0
-    module load papi-5.5.0-gcc-6.2.0-oaqr3yn
-  elif [ "$2" == "intel" ]; then
-    export PE_ENV=INTEL
-    module load intel-compilers-17/17.0.2.174
-    module load intel-mpi-17
-    module load papi-5.5.0-intel-17.0.2-a26lczv
+  if [ "${PE_COMPILER}" == "" ]; then
+    echo "Cray compiler loaded by default."
   else
-    echo "Error, unknown compiler, ${2}!"
-    return
+    module load PrgEnv-${PE_COMPILER}
   fi
+  module load papi
+  export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 else
-  echo "Error, unknown platform, ${1}!"
+  echo "Error, unknown platform, ${PE_PLATFORM}!"
   return
 fi
 
-if [ "$3" == "" ]; then
+
+export PE_OPT_LEVEL=0
+if [ "$4" == "" ]; then
   echo "Setting compiler optimisation level 0."
   export PE_OPT_LEVEL=0
 else
-  ARG3_LENGTH=${#3}
-  if (( $ARG3_LENGTH > 1 )); then
+  ARG4_LENGTH=${#4}
+  if (( $ARG4_LENGTH > 1 )); then
     echo "Error, optimisation level should be just one digit."
     return
   fi
   re='[0-9]'
-  if ! [[ $3 =~ $re ]] ; then
-    echo "Error, invalid optimisation level, ${3}."
+  if ! [[ $4 =~ $re ]] ; then
+    echo "Error, invalid optimisation level, ${4}."
     return
   else
-    export PE_OPT_LEVEL=$3
+    export PE_OPT_LEVEL=$4
   fi
 fi

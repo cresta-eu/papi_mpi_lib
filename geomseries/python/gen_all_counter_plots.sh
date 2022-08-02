@@ -1,15 +1,24 @@
 #!/bin/bash --login
 
-if [ "$1" == "archer" ] || [ "$1" == "" ]; then
-  ./gen_counter_plots.sh archer papi cray O0n24
-  ./gen_counter_plots.sh archer papi cray O3n24
-  ./gen_counter_plots.sh archer papi intel O0n24
-  ./gen_counter_plots.sh archer papi intel O3n24
-  ./gen_counter_plots.sh archer papi gnu O0n24
-  ./gen_counter_plots.sh archer papi gnu O3n24
-elif [ "$1" == "cirrus" ]; then
-  ./gen_counter_plots.sh cirrus papi intel O0n36
-  ./gen_counter_plots.sh cirrus papi intel O3n36
-  ./gen_counter_plots.sh cirrus papi gnu O0n36
-  ./gen_counter_plots.sh cirrus papi gnu O3n36
+if [ "$1" == "archer2" ] || [ "$1" == "" ]; then
+  module -q restore
+  module -q load cpe/21.09
+  module -q load PrgEnv-gnu
+  module -q load cray-python
+
+  export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+
+  ROOT=${HOME/home/work}
+  PYPP_HOME=${ROOT}/utils/pypp/3.9.4.1
+
+  . ${PYPP_HOME}/bin/activate
+
+  ./gen_counter_plots.sh archer2 papi cray O0n128
+  ./gen_counter_plots.sh archer2 papi cray O3n128
+  ./gen_counter_plots.sh archer2 papi gnu O0n128
+  ./gen_counter_plots.sh archer2 papi gnu O3n128
+  ./gen_counter_plots.sh archer2 papi aocc O0n128
+  ./gen_counter_plots.sh archer2 papi aocc O3n128
+
+  . ${PYPP_HOME}/bin/deactivate
 fi

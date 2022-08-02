@@ -1,0 +1,46 @@
+Available components and hardware information.
+--------------------------------------------------------------------------------
+PAPI version             : 6.0.0.6
+Operating system         : Linux 4.12.14-197.78_9.1.64-cray_shasta_c
+Vendor string and code   : AuthenticAMD (2, 0x2)
+Model string and code    : AMD EPYC 7742 64-Core Processor (49, 0x31)
+CPU revision             : 0.000000
+CPUID                    : Family/Model/Stepping 23/49/0, 0x17/0x31/0x00
+CPU Max MHz              : 2250
+CPU Min MHz              : 1500
+Total cores              : 256
+SMT threads per core     : 2
+Cores per socket         : 64
+Sockets                  : 2
+Cores per NUMA region    : 32
+NUMA regions             : 8
+Running in a VM          : no
+Number Hardware Counters : 6
+Max Multiplex Counters   : 384
+Fast counter read (rdpmc): no
+--------------------------------------------------------------------------------
+
+Compiled-in components:
+Name:   perf_event              Linux perf_event CPU counters
+Name:   perf_event_uncore       Linux perf_event CPU uncore and northbridge
+   \-> Disabled: No uncore PMUs or events found
+Name:   cray_npu                Cray network interconnect performance counters
+   \-> Disabled: CRAYPE_NETWORK_TARGET environment variable contains a value that is not valid
+Name:   cray_cuda               Nvidia GPU hardware counters
+   \-> Disabled: CUDA library unavailable.
+Name:   nvml                    NVML provides the API for monitoring NVIDIA hardware (power usage, temperature, fan speed, etc)
+   \-> Disabled: libcuda.so not found.
+Name:   cray_rapl               Cray RAPL energy measurements
+   \-> Disabled: Not an Intel processor
+Name:   cray_pm                 Cray Power Management counters
+
+Active components:
+Name:   perf_event              Linux perf_event CPU counters
+                                Native: 139, Preset: 17, Counters: 6
+                                PMUs supported: perf, perf_raw, amd64_fam17h_zen2
+
+Name:   cray_pm                 Cray Power Management counters
+                                Native: 19, Preset: 0, Counters: 19
+
+
+--------------------------------------------------------------------------------

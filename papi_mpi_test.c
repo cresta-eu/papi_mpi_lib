@@ -23,14 +23,14 @@
 int main(int argc,char **argv){
   
   int i, ierr, rank, comm;
-  
+
   MPI_Init(NULL, NULL);
   
   papi_mpi_initialise("./papi_test.out");
   
   for (i=1; i<10; i++) {
     papi_mpi_reset(1);
-    sleep(500000);
+    sleep(1);
     papi_mpi_record(i, 1, 1, 0);
   }
   

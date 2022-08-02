@@ -4,10 +4,10 @@ across multiple compute nodes.
 
 This repository holds source code for the `papi_mpi_lib` library (a wrapper to the [low-level API](http://icl.cs.utk.edu/papi/docs/dd/dbc/group__low__api.html) defined by the [PAPI library](http://icl.utk.edu/papi/)). There are also two small test harnesses that demonstrate how to call the library functions from Fortran and C codes.
 
-The makefile is intended for use on the ARCHER Cray XC30 MPP Supercomputer:
+The makefile is intended for use on the [ARCHER2 HPE Cray EX Supercomputer](www.archer2.ac.uk):
 the makefile script references the `PE_ENV` environment variable.
 
-Before compiling please load the papi module (`module load papi`) and then run the configure script to set the platform<br> and compiler: e.g., `source ./configure archer cray` will prepare your environment for building `papi_mpi_lib` on the ARCHER platform using the Cray compiler. Next, compile by running `make`. You can now compile and link your application code with `libpapimpi`.
+Before compiling please run the configure script to set the platform<br>, compiler and CPE version: e.g., `source ./configure archer cray 21.09` will prepare your environment for building `papi_mpi_lib` on the ARCHER platform using the Cray compiler that comes with the 21.09 CPE release. Next, compile by running `make`. You can now compile and link your application code with `libpapimpi`.
 
 The following text describes the interface provided by the four functions
 of the `papi_mpi_lib` library.
@@ -47,11 +47,11 @@ The output file contains lines of space-separated fields. A description of each 
 The last field, Counter Total, is repeated for however many counters are being monitored.
 
 To specify which counters you wish to monitor you must specify one environment variable within your job submission
-script. For example, the following will record the number of floating point operations (FLOPs) and the number of accesses to the level 2 data cache.
+script. For example, the following will record the number of floating point operations (FLOPs) and the number of accesses to the level 1 data cache.
 
 ```bash
-module load papi/5.5.1.4
-export PAPI_RT_PERFCTR=PAPI_TOT_CYC,PAPI_FP_OPS,PAPI_L2_DCA
+module load papi
+export PAPI_RT_PERFCTR=PAPI_TOT_CYC,PAPI_FP_OPS,PAPI_L1_DCA
 ```
 
 The Fortran-like code below shows how the `papi_mpi_lib` library routines could be integrated into an application code, within the main time step loop.
