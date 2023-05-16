@@ -1,4 +1,4 @@
-# Copyright (c) 2018 The University of Edinburgh
+# Copyright (c) 2023 The University of Edinburgh
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,10 +41,10 @@ papi_mpi_lib_interface.o: papi_mpi_lib_interface.f90
 	$(FC) $(FFLAGS) -c papi_mpi_lib_interface.f90
 
 papi_mpi_testf: papi_mpi_testf.F90 papi_mpi_lib_interface.o papi_mpi_lib.o
-	$(FC) $(FFLAGS) -o papi_mpi_testf papi_mpi_testf.F90 papi_mpi_lib_interface.o papi_mpi_lib.o -lpapi
+	$(FC) -O2 $(FFLAGS) -o papi_mpi_testf papi_mpi_testf.F90 papi_mpi_lib_interface.o papi_mpi_lib.o -lpapi
 
 papi_mpi_test: papi_mpi_test.c papi_mpi_lib.o papi_mpi_lib.h
-	$(CC) $(CFLAGS) -o papi_mpi_test papi_mpi_test.c papi_mpi_lib.o -lpapi
+	$(CC) -O2 $(CFLAGS) -o papi_mpi_test papi_mpi_test.c papi_mpi_lib.o -lpapi
 
 clean: 
 	$(RM) *.o *.mod *.out *.a *.so pat_mpi_test pat_mpi_testf
