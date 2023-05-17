@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=1
-#SBATCH --account=z19
+#SBATCH --account=[budget code]
 #SBATCH --partition=standard
 #SBATCH --qos=short
 #SBATCH --export=none

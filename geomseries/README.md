@@ -33,9 +33,9 @@ loop implementations, flat and recursive; then the two calculations are repeated
 Hence, the factor of `464` mentioned earlier comes from `2*2*29*4`. (Please note, originally a third loop<br>
 type, inline, was also implemented but this has now been removed due to the reasons given in [notes.md](https://github.com/cresta-eu/papi_mpi_lib/blob/master/geomseries/notes.md)).
 
-The `submit.ll` file is also intended for the ARCHER2 platform. This submission script calls six versions of the<br>
+The [submit_geomseries_test.ll](https://github.com/cresta-eu/papi_mpi_lib/blob/master/geomseries/tests/archer2/submit_geomseries_test.ll) file is also intended for the ARCHER2 platform. This submission script calls six versions of the<br>
 `geomseries` executable that cover the Cray, GNU and AOCC compilers with no optimisations (`-O0`) and with `-O3`.<br>
 Furthermore, the script is setup to evaluate several counters, covering cache levels 1 and 3 as well as the node memory.
 
-Once a `geomseries` job has completed the output can be processed by the `python/analyse_counter_variations.py`<br>
+Once a `geomseries` job has completed, the output can be processed by the [analyse_counter_variations.py](https://github.com/cresta-eu/papi_mpi_lib/blob/master/geomseries/python/analyse_counter_variations.py)<br>
 script in order to produce plots similar to the ones presented by Kwack et al. 2018.
