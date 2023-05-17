@@ -6,14 +6,14 @@
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=1
-#SBATCH --account=[budget code]
+#SBATCH --account=z19
 #SBATCH --partition=standard
-#SBATCH --qos=short
+#SBATCH --qos=standard
 #SBATCH --export=none
 
 
 function papi_query() {
-  export LD_LIBRARY_PATH=/opt/cray/pe/papi/$2/lib64:/opt/cray/libfabric/1.11.0.4.71/lib64
+  export LD_LIBRARY_PATH=/opt/cray/pe/papi/$2/lib64:/opt/cray/libfabric/$3/lib64
   module -q restore
 
   module -q load cpe/$1
@@ -28,9 +28,10 @@ function papi_query() {
 }
 
 
-papi_query 21.04 6.0.0.6
-papi_query 21.09 6.0.0.9
-papi_query 22.04 6.0.0.14
+papi_query 21.04 6.0.0.6 1.11.0.4.71
+papi_query 21.09 6.0.0.9 1.11.0.4.71
+papi_query 22.04 6.0.0.14 1.11.0.4.71
+#papi_query 22.12 6.0.0.17 1.12.1.2.2.0.0
 
 
 # pat_help counters rome deriv
