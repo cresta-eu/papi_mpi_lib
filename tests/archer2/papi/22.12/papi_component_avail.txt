@@ -1,0 +1,62 @@
+Available components and hardware information.
+--------------------------------------------------------------------------------
+PAPI version             : 6.0.0.17
+Operating system         : Linux 5.14.21-150400.24.46_12.0.63-cray_shasta_c
+Vendor string and code   : AuthenticAMD (2, 0x2)
+Model string and code    : AMD EPYC 7742 64-Core Processor (49, 0x31)
+CPU revision             : 0.000000
+CPUID                    : Family/Model/Stepping 23/49/0, 0x17/0x31/0x00
+CPU Max MHz              : 2250
+CPU Min MHz              : 1500
+Total cores              : 256
+SMT threads per core     : 2
+Cores per socket         : 64
+Sockets                  : 2
+Cores per NUMA region    : 32
+NUMA regions             : 8
+Running in a VM          : no
+Number Hardware Counters : 5
+Max Multiplex Counters   : 384
+Fast counter read (rdpmc): no
+--------------------------------------------------------------------------------
+
+Compiled-in components:
+Name:   perf_event              Linux perf_event CPU counters
+Name:   perf_event_uncore       Linux perf_event CPU uncore and northbridge
+   \-> Disabled: No uncore PMUs or events found
+Name:   cray_cassini            HPE Cray Cassini NIC performance counters
+   \-> Disabled: Cannot set up dynamic linking access.
+Name:   cray_cuda               Nvidia GPU hardware counters
+   \-> Disabled: No CUDA-capable device available.
+Name:   cray_npu                Cray network interconnect performance counters
+   \-> Disabled: CRAYPE_NETWORK_TARGET environment variable contains a value that is not valid
+Name:   cray_pm                 Cray Power Management counters
+   \-> Disabled: Cannot access directory '/sys/cray/pm_counters'
+Name:   cray_rapl               Cray RAPL energy measurements
+Name:   cray_zenl3              Cray AMD Zen Level 3 Cache performance counters
+Name:   cuda                    CUDA events and metrics via NVIDIA CuPTI interfaces
+   \-> Disabled: No Nvidia Devices Found.
+Name:   infiniband              Linux Infiniband statistics using the sysfs interface
+Name:   rocm                    GPU events and metrics via AMD ROCm-PL API
+   \-> Disabled: libhsa-runtime64.so not found. Need LD_LIBRARY_PATH set, or Env Var PAPI_ROCM_ROOT set, or module load rocm.
+Name:   sysdetect               System info detection component
+
+Active components:
+Name:   perf_event              Linux perf_event CPU counters
+                                Native: 141, Preset: 17, Counters: 5
+                                PMUs supported: perf, perf_raw, amd64_fam17h_zen2
+
+Name:   cray_rapl               Cray RAPL energy measurements
+                                Native: 5, Preset: 0, Counters: 5
+
+Name:   cray_zenl3              Cray AMD Zen Level 3 Cache performance counters
+                                Native: 4, Preset: 0, Counters: 6
+
+Name:   infiniband              Linux Infiniband statistics using the sysfs interface
+                                Native: 102, Preset: 0, Counters: 102
+
+Name:   sysdetect               System info detection component
+                                Native: 0, Preset: 0, Counters: 0
+
+
+--------------------------------------------------------------------------------
