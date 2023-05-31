@@ -22,9 +22,9 @@ function papi_query() {
   export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 
   mkdir -p $1
-  papi_component_avail &> $1/papi_component_avail.txt
-  papi_native_avail &> $1/papi_native_avail.txt
-  papi_avail &> $1/papi_avail.txt
+  papi_component_avail -d &> $1/papi_component_avail.txt
+  papi_native_avail -c &> $1/papi_native_avail.txt
+  papi_avail -c -d &> $1/papi_avail.txt
 }
 
 
