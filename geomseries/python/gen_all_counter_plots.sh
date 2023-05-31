@@ -9,7 +9,7 @@ if [ "$1" == "archer2" ] || [ "$1" == "" ]; then
   export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 
   ROOT=${HOME/home/work}
-  PYPP_HOME=${ROOT}/utils/pypp/3.9.4.1
+  PYPP_HOME=${ROOT}/utils/pypp
 
   . ${PYPP_HOME}/bin/activate
 
@@ -20,5 +20,5 @@ if [ "$1" == "archer2" ] || [ "$1" == "" ]; then
   ./gen_counter_plots.sh archer2 papi aocc O0n128
   ./gen_counter_plots.sh archer2 papi aocc O3n128
 
-  . ${PYPP_HOME}/bin/deactivate
+  deactivate
 fi
