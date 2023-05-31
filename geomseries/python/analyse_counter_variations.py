@@ -290,6 +290,7 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
     INDEX_TIME    = 0
     INDEX_STEP    = 1
     INDEX_SUBSTEP = 2
+    hdr_list = []
     double_precision = False
     index_cntr = -1
     index_flops = -1
@@ -302,6 +303,15 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
             
             if "_mpi_lib" in cols[0]:
                 # parse header to get counter name
+                
+                # if exact same header line has already appeared in data file
+                # assume that second set of measurements have been done at double precision
+                if cols in hdr_list:
+                    double_precision = True
+                else:
+                    double_precision = False
+                    hdr_list.append(cols)
+                
                 cols = line.split(',')
                 cols[-1] = cols[-1][0:len(cols[-1])-1]
                 
@@ -315,11 +325,11 @@ def parse_counter_data(data_file_name, cntr_name, flops_names, cntr_line_size, n
                     found_flops_counter = False
                     if col_name in flops_cntr_names:
                         found_flops_counter = True
-                        double_precision = True if "_DP" in col_name else False
+                        #double_precision = True if "_DP" in col_name else False
                     else:
                         if "PAPI_FP_OPS" in col_name and "PAPI_FP_OPS" in flops_cntr_names:
                             found_flops_counter = True
-                            double_precision = True if ":DP" in col_name else False
+                            #double_precision = True if ":DP" in col_name else False
 
                     if found_flops_counter:
                         index_flops = len(cols)-1-i
@@ -544,7 +554,7 @@ if plot_error_func:
     else:
         plt.xlabel("Counter Value")
 else:
-    plt.xticks(range(1,len(plot_labels)+1), plot_labels, rotation="70", fontsize=10)
+    plt.xticks(range(1,len(plot_labels)+1), plot_labels, rotation=70, fontsize=10)
     plt.xlim(0,len(plot_labels)+1)
 
 if cntr_exists:
