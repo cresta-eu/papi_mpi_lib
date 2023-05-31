@@ -15,7 +15,7 @@ export OMP_NUM_THREADS=1
 
 declare -a optimisation_level=("O0" "O3")
 declare -a compiler=("cray" "gnu" "aocc")
-declare -a papi_counters=("PAPI_L1_DCA" "PERF_COUNT_HW_CACHE_L1D" "PERF_COUNT_HW_CACHE_LL:ACCESS" "PERF_COUNT_HW_CACHE_NODE:ACCESS")
+declare -a papi_counters=("PAPI_L1_DCA" "PERF_COUNT_HW_CACHE_L1D")
 declare -a geomseries_precision=("-nodouble" "-nosingle")
 
 BASIC_PAPI_CNTRS="PAPI_TOT_CYC,PAPI_FP_OPS"
