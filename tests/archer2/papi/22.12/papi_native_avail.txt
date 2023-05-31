@@ -373,7 +373,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::PERF_COUNT_HW_BUS_CYCLES                                               |
+| perf::PERF_COUNT_HW_BUS_CYCLES                                           <NA>|
 |            PERF_COUNT_HW_BUS_CYCLES                                          |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -398,7 +398,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::BUS-CYCLES                                                             |
+| perf::BUS-CYCLES                                                         <NA>|
 |            PERF_COUNT_HW_BUS_CYCLES                                          |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -573,7 +573,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::PERF_COUNT_HW_REF_CPU_CYCLES                                           |
+| perf::PERF_COUNT_HW_REF_CPU_CYCLES                                       <NA>|
 |            PERF_COUNT_HW_REF_CPU_CYCLES                                      |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -598,7 +598,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::REF-CYCLES                                                             |
+| perf::REF-CYCLES                                                         <NA>|
 |            PERF_COUNT_HW_REF_CPU_CYCLES                                      |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1107,7 +1107,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::L1-DCACHE-STORES                                                       |
+| perf::L1-DCACHE-STORES                                                   <NA>|
 |            L1 cache store accesses                                           |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1132,7 +1132,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::L1-DCACHE-STORE-MISSES                                                 |
+| perf::L1-DCACHE-STORE-MISSES                                             <NA>|
 |            L1 cache store misses                                             |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1182,7 +1182,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::L1-DCACHE-PREFETCH-MISSES                                              |
+| perf::L1-DCACHE-PREFETCH-MISSES                                          <NA>|
 |            L1 cache prefetch misses                                          |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1290,7 +1290,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::L1-ICACHE-PREFETCHES                                                   |
+| perf::L1-ICACHE-PREFETCHES                                               <NA>|
 |            L1I cache prefetch accesses                                       |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1315,7 +1315,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::L1-ICACHE-PREFETCH-MISSES                                              |
+| perf::L1-ICACHE-PREFETCH-MISSES                                          <NA>|
 |            L1I cache prefetch misses                                         |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1340,7 +1340,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::PERF_COUNT_HW_CACHE_LL                                                 |
+| perf::PERF_COUNT_HW_CACHE_LL                                             <NA>|
 |            Last level cache                                                  |
 |     :READ                                                                    |
 |            read access                                                       |
@@ -1375,7 +1375,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::LLC-LOADS                                                              |
+| perf::LLC-LOADS                                                          <NA>|
 |            Last level cache load accesses                                    |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1400,7 +1400,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::LLC-LOAD-MISSES                                                        |
+| perf::LLC-LOAD-MISSES                                                    <NA>|
 |            Last level cache load misses                                      |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1425,7 +1425,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::LLC-STORES                                                             |
+| perf::LLC-STORES                                                         <NA>|
 |            Last level cache store accesses                                   |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1450,7 +1450,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::LLC-STORE-MISSES                                                       |
+| perf::LLC-STORE-MISSES                                                   <NA>|
 |            Last level cache store misses                                     |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1475,7 +1475,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::LLC-PREFETCHES                                                         |
+| perf::LLC-PREFETCHES                                                     <NA>|
 |            Last level cache prefetch accesses                                |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1500,7 +1500,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::LLC-PREFETCH-MISSES                                                    |
+| perf::LLC-PREFETCH-MISSES                                                <NA>|
 |            Last level cache prefetch misses                                  |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1610,7 +1610,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::DTLB-STORES                                                            |
+| perf::DTLB-STORES                                                        <NA>|
 |            Data TLB store accesses                                           |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1635,7 +1635,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::DTLB-STORE-MISSES                                                      |
+| perf::DTLB-STORE-MISSES                                                  <NA>|
 |            Data TLB store misses                                             |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1660,7 +1660,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::DTLB-PREFETCHES                                                        |
+| perf::DTLB-PREFETCHES                                                    <NA>|
 |            Data TLB prefetch accesses                                        |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1685,7 +1685,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::DTLB-PREFETCH-MISSES                                                   |
+| perf::DTLB-PREFETCH-MISSES                                               <NA>|
 |            Data TLB prefetch misses                                          |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1872,7 +1872,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::PERF_COUNT_HW_CACHE_NODE                                               |
+| perf::PERF_COUNT_HW_CACHE_NODE                                           <NA>|
 |            Node memory access                                                |
 |     :READ                                                                    |
 |            read access                                                       |
@@ -1907,7 +1907,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::NODE-LOADS                                                             |
+| perf::NODE-LOADS                                                         <NA>|
 |            Node  load accesses                                               |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1932,7 +1932,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::NODE-LOAD-MISSES                                                       |
+| perf::NODE-LOAD-MISSES                                                   <NA>|
 |            Node  load misses                                                 |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1957,7 +1957,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::NODE-STORES                                                            |
+| perf::NODE-STORES                                                        <NA>|
 |            Node  store accesses                                              |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -1982,7 +1982,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::NODE-STORE-MISSES                                                      |
+| perf::NODE-STORE-MISSES                                                  <NA>|
 |            Node  store misses                                                |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -2007,7 +2007,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::NODE-PREFETCHES                                                        |
+| perf::NODE-PREFETCHES                                                    <NA>|
 |            Node  prefetch accesses                                           |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -2032,7 +2032,7 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 --------------------------------------------------------------------------------
-| perf::NODE-PREFETCH-MISSES                                                   |
+| perf::NODE-PREFETCH-MISSES                                               <NA>|
 |            Node  prefetch misses                                             |
 |     :u=0                                                                     |
 |            monitor at user level                                             |
@@ -4438,9 +4438,6 @@ Fast counter read (rdpmc): no
 | infiniband:::mlx5_0_1:symbol_error                                           |
 |            Total number of minor link errors detected on one or more physical|
 |             lanes (32-bit).                                                  |
-===============================================================================
- Native Events in Component: rocm
-===============================================================================
 ===============================================================================
  Native Events in Component: sysdetect
 ===============================================================================

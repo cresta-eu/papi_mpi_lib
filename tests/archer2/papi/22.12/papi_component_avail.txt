@@ -22,41 +22,104 @@ Fast counter read (rdpmc): no
 
 Compiled-in components:
 Name:   perf_event              Linux perf_event CPU counters
+                                Version:			5.0
+                                Number of native events:	141
+                                Number of preset events:	17
+
 Name:   perf_event_uncore       Linux perf_event CPU uncore and northbridge
    \-> Disabled: No uncore PMUs or events found
+                                Version:			5.0
+                                Number of native events:	0
+                                Number of preset events:	0
+
 Name:   cray_cassini            HPE Cray Cassini NIC performance counters
    \-> Disabled: Cannot set up dynamic linking access.
+                                Version:			1
+                                Number of native events:	0
+                                Number of preset events:	0
+
 Name:   cray_cuda               Nvidia GPU hardware counters
    \-> Disabled: No CUDA-capable device available.
+                                Version:			1.0
+                                Number of native events:	0
+                                Number of preset events:	0
+
 Name:   cray_npu                Cray network interconnect performance counters
    \-> Disabled: CRAYPE_NETWORK_TARGET environment variable contains a value that is not valid
+                                Version:			1.0
+                                Number of native events:	0
+                                Number of preset events:	0
+
 Name:   cray_pm                 Cray Power Management counters
    \-> Disabled: Cannot access directory '/sys/cray/pm_counters'
+                                Version:			1
+                                Number of native events:	0
+                                Number of preset events:	0
+
 Name:   cray_rapl               Cray RAPL energy measurements
+                                Version:			3.0
+                                Number of native events:	5
+                                Number of preset events:	0
+
 Name:   cray_zenl3              Cray AMD Zen Level 3 Cache performance counters
+                                Version:			1.0
+                                Number of native events:	4
+                                Number of preset events:	0
+
 Name:   cuda                    CUDA events and metrics via NVIDIA CuPTI interfaces
    \-> Disabled: No Nvidia Devices Found.
+                                Version:			5.1
+                                Number of native events:	-1
+                                Number of preset events:	0
+
 Name:   infiniband              Linux Infiniband statistics using the sysfs interface
+                                Version:			5.3.0
+                                Number of native events:	102
+                                Number of preset events:	0
+
 Name:   rocm                    GPU events and metrics via AMD ROCm-PL API
    \-> Disabled: libhsa-runtime64.so not found. Need LD_LIBRARY_PATH set, or Env Var PAPI_ROCM_ROOT set, or module load rocm.
+                                Version:			1.0
+                                Number of native events:	-1
+                                Number of preset events:	0
+
 Name:   sysdetect               System info detection component
+                                Version:			1.0
+                                Number of native events:	0
+                                Number of preset events:	0
+
 
 Active components:
 Name:   perf_event              Linux perf_event CPU counters
                                 Native: 141, Preset: 17, Counters: 5
                                 PMUs supported: perf, perf_raw, amd64_fam17h_zen2
 
+                                Version:			5.0
+                                Fast counter read:		0
+
 Name:   cray_rapl               Cray RAPL energy measurements
                                 Native: 5, Preset: 0, Counters: 5
+
+                                Version:			3.0
+                                Fast counter read:		0
 
 Name:   cray_zenl3              Cray AMD Zen Level 3 Cache performance counters
                                 Native: 4, Preset: 0, Counters: 6
 
+                                Version:			1.0
+                                Fast counter read:		0
+
 Name:   infiniband              Linux Infiniband statistics using the sysfs interface
                                 Native: 102, Preset: 0, Counters: 102
 
+                                Version:			5.3.0
+                                Fast counter read:		0
+
 Name:   sysdetect               System info detection component
                                 Native: 0, Preset: 0, Counters: 0
+
+                                Version:			1.0
+                                Fast counter read:		0
 
 
 --------------------------------------------------------------------------------
