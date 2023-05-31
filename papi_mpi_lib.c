@@ -31,7 +31,7 @@
 #include "papi_mpi_lib.h"
 
 
-static char ver[]="5.0.0";
+static char ver[]="6.0.0";
 
 #define PAPI_MPI_LIB_UNINITIALISED 1001
 #define MAX_NAME_LEN 128
