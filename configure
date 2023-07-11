@@ -27,7 +27,6 @@ if [ "${PE_PLATFORM}" == "archer2" ]; then
     module load PrgEnv-${PE_COMPILER}
   fi
   module load papi
-  export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 else
   echo "Error, unknown platform, ${PE_PLATFORM}!"
   return

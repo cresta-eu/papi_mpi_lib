@@ -28,10 +28,10 @@ function papi_query() {
 }
 
 
-papi_query 21.04 6.0.0.6 1.11.0.4.71
-papi_query 21.09 6.0.0.9 1.11.0.4.71
-papi_query 22.04 6.0.0.14 1.11.0.4.71
-#papi_query 22.12 6.0.0.17 1.12.1.2.2.0.0
+#papi_query 21.04 6.0.0.6 1.11.0.4.71
+#papi_query 21.09 6.0.0.9 1.11.0.4.71
+#papi_query 22.04 6.0.0.14 1.11.0.4.71
+papi_query 22.12 6.0.0.17 1.12.1.2.2.0.0
 
 
 # pat_help counters rome deriv
