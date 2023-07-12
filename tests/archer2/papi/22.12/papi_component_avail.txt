@@ -51,9 +51,8 @@ Name:   cray_npu                Cray network interconnect performance counters
                                 Number of preset events:	0
 
 Name:   cray_pm                 Cray Power Management counters
-   \-> Disabled: Cannot access directory '/sys/cray/pm_counters'
                                 Version:			1
-                                Number of native events:	0
+                                Number of native events:	14
                                 Number of preset events:	0
 
 Name:   cray_rapl               Cray RAPL energy measurements
@@ -95,6 +94,12 @@ Name:   perf_event              Linux perf_event CPU counters
                                 PMUs supported: perf, perf_raw, amd64_fam17h_zen2
 
                                 Version:			5.0
+                                Fast counter read:		0
+
+Name:   cray_pm                 Cray Power Management counters
+                                Native: 14, Preset: 0, Counters: 14
+
+                                Version:			1
                                 Fast counter read:		0
 
 Name:   cray_rapl               Cray RAPL energy measurements

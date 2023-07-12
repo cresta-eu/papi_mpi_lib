@@ -4041,6 +4041,129 @@ Fast counter read (rdpmc): no
 |     :pinned=0                                                                |
 |            pin event to counters                                             |
 ===============================================================================
+ Native Events in Component: cray_pm
+===============================================================================
+| cray_pm:::PM_POWER_CAP:NODE                                                  |
+|            Compute node power cap                                            |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:NODE                                                      |
+|            Compute node point in time power                                  |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:NODE                                                     |
+|            Compute node accumulated energy                                   |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:CPU                                                       |
+|            CPU point in time power                                           |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:CPU                                                      |
+|            CPU accumulated energy                                            |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER_CAP:ACC                                               <NA>|
+|            Accelerator power cap                                             |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:ACC                                                   <NA>|
+|            Accelerator point in time power                                   |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:ACC                                                  <NA>|
+|            Accelerator accumulated energy                                    |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER_CAP:ACC0                                              <NA>|
+|            Accelerator 0 power cap                                           |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:ACC0                                                  <NA>|
+|            Accelerator 0 point in time power                                 |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:ACC0                                                 <NA>|
+|            Accelerator 0 accumulated energy                                  |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER_CAP:ACC1                                              <NA>|
+|            Accelerator 1 power cap                                           |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:ACC1                                                  <NA>|
+|            Accelerator 1 point in time power                                 |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:ACC1                                                 <NA>|
+|            Accelerator 1 accumulated energy                                  |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER_CAP:ACC2                                              <NA>|
+|            Accelerator 2 power cap                                           |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:ACC2                                                  <NA>|
+|            Accelerator 2 point in time power                                 |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:ACC2                                                 <NA>|
+|            Accelerator 2 accumulated energy                                  |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER_CAP:ACC3                                              <NA>|
+|            Accelerator 3 power cap                                           |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:ACC3                                                  <NA>|
+|            Accelerator 3 point in time power                                 |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:ACC3                                                 <NA>|
+|            Accelerator 3 accumulated energy                                  |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_POWER:MEMORY                                                    |
+|            Memory subsystem point in time power                              |
+|     Units: W                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_ENERGY:MEMORY                                                   |
+|            Memory subsystem accumulated energy                               |
+|     Units: J                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_TEMP:SOCKET0                                                    |
+|            Temperature of CPU socket 0                                       |
+|     Units: C                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_TEMP:SOCKET1                                                    |
+|            Temperature of CPU socket 1                                       |
+|     Units: C                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_TEMP:SOCKET2                                                <NA>|
+|            Temperature of CPU socket 2                                       |
+|     Units: C                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_TEMP:SOCKET3                                                <NA>|
+|            Temperature of CPU socket 3                                       |
+|     Units: C                                                                 |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_FRESHNESS                                                       |
+|            Number of times HSS has updated data structure (internal)         |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_GENERATION                                                      |
+|            Number of times a power cap change was made (internal)            |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_STARTUP                                                         |
+|            Timestamp of the last startup (internal)                          |
+|     Units: cycles                                                            |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_SCAN_HZ                                                         |
+|            Power counters scan rate (internal)                               |
+|     Units: hz                                                                |
+--------------------------------------------------------------------------------
+| cray_pm:::PM_VERSION                                                         |
+|            Version of sysfs directory tree (internal)                        |
+===============================================================================
  Native Events in Component: cray_rapl
 ===============================================================================
 | cray_rapl:::UNITS:POWER                                                      |
@@ -4442,4 +4565,4 @@ Fast counter read (rdpmc): no
  Native Events in Component: sysdetect
 ===============================================================================
 
-Total events reported: 252
+Total events reported: 283
