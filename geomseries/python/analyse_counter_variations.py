@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright EPCC,
-# Michael Bareford, Copyright 2018
-# v1.0
+# Michael Bareford, Copyright 2023
+# v3.0.0
 
 import sys
 import re
@@ -30,6 +30,7 @@ def help():
 
     Arguments:
 
+        -path            Location of folder containing counter recordings
         -data            Name of file containing counter recordings
         -cntr            Name of counter whose value is some proxy for data movement
         -cntr-line-size  The unit counter value in number of bytes
@@ -60,6 +61,7 @@ def help():
 
 
 def init_args():
+    global data_path
     global data_file_name
     global cntr_name
     global cntr_line_size
@@ -78,6 +80,7 @@ def init_args():
     global plot_error_func
     global no_log
 
+    data_path = ""
     data_file_name = ""
     log_data = False
     cntr_name = ""
@@ -100,6 +103,7 @@ def init_args():
     
 
 def print_args():
+    global data_path
     global data_file_name
     global cntr_name
     global cntr_line_size
@@ -118,6 +122,7 @@ def print_args():
     global plot_error_func
     global no_log
 
+    print("data_path = " + data_path)
     print("data_file_name = " + data_file_name)
     print("cntr_name = " + cntr_name)
     print("cntr_line_size = " + str(cntr_line_size))
@@ -139,6 +144,7 @@ def print_args():
 
     
 def parse_args():
+    global data_path
     global data_file_name
     global cntr_name
     global cntr_line_size
@@ -167,6 +173,9 @@ def parse_args():
             help()
             sys.exit()
 
+        elif arg == "-path":
+            data_path = sys.argv[i+1]
+            i += 2 
         elif arg == "-data":
             data_file_name = sys.argv[i+1]
             i += 2
@@ -236,12 +245,16 @@ def parse_args():
             sys.exit()
         
 
+    # add the path to the data file name
+    data_file_name = data_path + '/' + data_file_name
+
+
     if 0 == len(legend_loc):
         legend_loc = "upper left"
     
     if 0 == len(cntr_name):
         log_name = "variations.txt"
-        fig_name = "variations.eps"
+        fig_name = "variations.svg"
     else:
         if ":" in cntr_name:
             fname = cntr_name.replace(":","-")
@@ -259,7 +272,7 @@ def parse_args():
             fname += "-error-func"
 
         log_name = fname + ".txt"
-        fig_name = fname + ".eps"
+        fig_name = fname + ".svg"
 
 
 
@@ -428,8 +441,8 @@ def round2precision(x, p):
 script_title = "analyse_counter_variations"
 script_version = "v3.0.0"
 
-plt_markers = ['o', '^', 's', 'd']
-cbs_palette = ["#d7191c", "#fdae61", "#abd9e9", "#2c7bb6"]
+plt_markers = ['o', '^', 'X', 's', 'd']
+cbs_palette = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]
 cbs_brush = 0
 
 lt_markers = {'f': 'o', 'r': '^'}
@@ -597,7 +610,7 @@ def_markeredgewidth = 0.5
 #        print(ck2)
 
 
-with open(log_name, 'w') as log:
+with open(data_path+'/'+log_name, 'w') as log:
     
     for cntr in counters:
         test = 1
@@ -695,7 +708,7 @@ ax.yaxis.set_ticks_position("both")
         
 if cntr_exists:
     if not (plot_error or plot_error_func):
-        plt.legend(ncol=2, loc=legend_loc, fontsize=9, framealpha=0.75)
+        plt.legend(ncol=2, loc=legend_loc, fontsize=9, fancybox=True, framealpha=0.75)
     else:
         if plot_error_func:
             ef_legend_items = []
@@ -715,18 +728,18 @@ if cntr_exists:
                 Line2D([0], [0], linestyle = "None", label="double",
                     marker=r'$\circledcirc$'))
             
-            ax.legend(handles=ef_legend_items, loc=legend_loc, numpoints=1)
+            ax.legend(handles=ef_legend_items, loc=legend_loc, numpoints=1, fancybox=True, framealpha=0.75)
 
 else:
-    plt.legend(ncol=1, loc=legend_loc, fontsize=9, framealpha=0.75)
+    plt.legend(ncol=1, loc=legend_loc, fontsize=9, fancybox=True, framealpha=0.75)
     if 0.0 == ymax:
         ymin, ymax = plt.ylim()
     plt.ylim(-0.1,ymax)
 
-plt.show()
+#plt.show()
 print("fig_name="+fig_name)
-fig.savefig(fig_name, format='eps', dpi=1000)
+fig.savefig(data_path+'/'+fig_name, format='svg', dpi=1000)
 plt.clf()
 
 if no_log:
-    os.remove(log_name)
+    os.remove(data_path+'/'+log_name)

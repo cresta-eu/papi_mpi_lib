@@ -1,17 +1,10 @@
-#!/bin/bash --login
+#!/bin/bash
 
-if [ "$1" == "archer2" ] || [ "$1" == "" ]; then
-  module -q restore
-  module -q load cpe/21.09
-  module -q load PrgEnv-gnu
-  module -q load cray-python
+if [ "$1" == "archer2" ]; then
 
-  export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
-
-  ROOT=${HOME/home/work}
-  PYPP_HOME=${ROOT}/utils/pypp
-
-  . ${PYPP_HOME}/bin/activate
+  # See the "install_pypp.sh" script for how to install
+  # a local Python post-processing virtual environment.
+  . ${HOME/home/work}/utils/pypp/bin/activate
 
   ./gen_counter_plots.sh archer2 papi cray O0n128
   ./gen_counter_plots.sh archer2 papi cray O3n128
@@ -21,4 +14,9 @@ if [ "$1" == "archer2" ] || [ "$1" == "" ]; then
   ./gen_counter_plots.sh archer2 papi aocc O3n128
 
   deactivate
+
+else
+
+  echo -e "Error, unrecognised system, $1."
+
 fi
