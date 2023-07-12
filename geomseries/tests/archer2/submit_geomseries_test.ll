@@ -5,7 +5,7 @@
 #SBATCH --tasks-per-node=128
 #SBATCH --cpus-per-task=1
 #SBATCH --time=02:00:00
-#SBATCH --account=z19
+#SBATCH --account=[budget code]
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 
@@ -15,7 +15,7 @@ export OMP_NUM_THREADS=1
 
 declare -a optimisation_level=("O0" "O3")
 declare -a compiler=("cray" "gnu" "aocc")
-declare -a papi_counters=("PAPI_L1_DCA" "PERF_COUNT_HW_CACHE_L1D")
+declare -a papi_counters=("PAPI_L1_DCA" "PAPI_L2_DCR" "PAPI_L2_DCH" "PAPI_L2_DCM" "PERF_COUNT_HW_CACHE_L1D")
 declare -a geomseries_precision=("-nodouble" "-nosingle")
 
 BASIC_PAPI_CNTRS="PAPI_TOT_CYC,PAPI_FP_OPS"
