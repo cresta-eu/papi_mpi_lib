@@ -8,7 +8,7 @@ Fortran and C codes.
 The makefile is intended for use on the [ARCHER2 HPE Cray EX Supercomputer](https://www.archer2.ac.uk/): the makefile script references
 the `PE_ENV` environment variable.
 
-Before compiling please run the configure script to set the platform<br>, compiler and CPE version: e.g., `source ./configure archer cray 22.12`
+Before compiling please run the configure script to set the platform, compiler and CPE version: e.g., `source ./configure archer cray 22.12`
 will prepare your environment for building `papi_mpi_lib` on the ARCHER platform using the Cray compiler that comes with the 22.12 CPE release.
 Next, compile by running `make`. You can now compile and link your application code with `libpapimpi`.
 
