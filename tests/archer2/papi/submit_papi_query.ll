@@ -19,8 +19,6 @@ function papi_query() {
   module -q load cpe/$1
   module -q load papi/$2
 
-  export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
-
   mkdir -p $1
   papi_component_avail -d &> $1/papi_component_avail.txt
   papi_native_avail -c &> $1/papi_native_avail.txt
@@ -28,9 +26,6 @@ function papi_query() {
 }
 
 
-#papi_query 21.04 6.0.0.6 1.11.0.4.71
-#papi_query 21.09 6.0.0.9 1.11.0.4.71
-#papi_query 22.04 6.0.0.14 1.11.0.4.71
 papi_query 22.12 6.0.0.17 1.12.1.2.2.0.0
 
 

@@ -14,8 +14,8 @@ J. Kwack, G. Arnold, C. Mendes G. H. Bauer, National Center for Supercomputing A
 
 The code listed here has been tested on the [ARCHER2 HPE Cray EX Supercomputer](https://www.archer2.ac.uk/). Before compiling,
 please run the configure script to set the platform, compiler, Cray Programming Environment (CPE) release and optimisation level:
-e.g., `source ./configure archer2 cray 21.09 3` will prepare your environment for building `geomseries` on the ARCHER2 platform
-using the CPE 21.09 Cray compiler and with the optimisation level set to 3. The actual compilation is then done by running `make`.
+e.g., `source ./configure archer2 cray 22.12 3` will prepare your environment for building `geomseries` on the ARCHER2 platform
+using the CPE 22.12 Cray compiler and with the optimisation level set to 3. The actual compilation is then done by running `make`.
 The `geomseries` code should automatically link to a freshly built `libpapimpi` library.
 
 It should be possible to run `geomseries` on non-Cray platforms too; however, it will be necessary to change<br>
